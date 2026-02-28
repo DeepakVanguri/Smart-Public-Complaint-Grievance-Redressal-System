@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In | SmartGov</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: var(--bg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-bg-glow {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .glow1 {
+            width: 500px;
+            height: 500px;
+            background: rgba(59, 130, 246, 0.08);
+            top: -100px;
+            left: -100px;
+        }
+
+        .glow2 {
+            width: 400px;
+            height: 400px;
+            background: rgba(99, 102, 241, 0.08);
+            bottom: -80px;
+            right: -80px;
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 460px;
+            margin: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .auth-logo {
+            width: 60px;
+            height: 60px;
+            background: var(--gradient-primary);
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin: 0 auto 16px;
+            box-shadow: 0 0 30px rgba(59, 130, 246, 0.3);
+        }
+
+        .auth-card {
+            background: var(--surface);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-xl);
+            padding: 40px;
+        }
+
+        .auth-tabs {
+            display: flex;
+            background: var(--surface-2);
+            border-radius: var(--radius);
+            padding: 4px;
+            margin-bottom: 28px;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 8px;
+            text-align: center;
+            border-radius: var(--radius-sm);
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition);
+            color: var(--text-muted);
+            border: none;
+            background: transparent;
+        }
+
+        .auth-tab.active {
+            background: var(--surface);
+            color: var(--text-primary);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .form-row {
+            display: grid;
+            gap: 16px;
+        }
+
+        .divider-or {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 20px 0;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        .divider-or::before,
+        .divider-or::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--card-border);
+        }
+
+        .demo-creds {
+            background: var(--surface-2);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius);
+            padding: 14px;
+            font-size: 0.8rem;
+        }
+
+        .demo-creds p {
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .demo-creds-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 4px 0;
+        }
+
+        .demo-creds-item code {
+            font-size: 0.75rem;
+            color: var(--primary-light);
+            background: rgba(59, 130, 246, 0.1);
+            padding: 2px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .demo-creds-item code:hover {
+            background: rgba(59, 130, 246, 0.2);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="auth-bg-glow glow1"></div>
+    <div class="auth-bg-glow glow2"></div>
+
+    <div class="auth-container fade-in">
+        <div class="auth-header">
+            <div class="auth-logo">🏛️</div>
+            <h2>Welcome Back</h2>
+            <p style="font-size:0.9rem; margin-top:4px">Sign in to your SmartGov account</p>
+        </div>
+
+        <div class="auth-card">
+            <!-- Role Tabs -->
+            <div class="auth-tabs">
+                <button class="auth-tab active" data-role="citizen" onclick="switchRole('citizen')">👤 Citizen</button>
+                <button class="auth-tab" data-role="admin" onclick="switchRole('admin')">🛡️ Admin</button>
+                <button class="auth-tab" data-role="staff" onclick="switchRole('staff')">⚙️ Staff</button>
+            </div>
+
+            <!-- Error Alert -->
+            <div id="error-alert" class="alert alert-error hidden" style="margin-bottom:16px">
+                <span>❌</span><span id="error-msg"></span>
+            </div>
+
+            <!-- Login Form -->
+            <form id="login-form" class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <div class="input-icon-wrap">
+                        <span class="icon">📧</span>
+                        <input id="email" type="email" class="form-input" placeholder="your@email.com" required
+                            autocomplete="email">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <div class="input-icon-wrap">
+                        <span class="icon">🔒</span>
+                        <input id="password" type="password" class="form-input" placeholder="••••••••" required
+                            autocomplete="current-password">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full btn-lg" id="login-btn">
+                    <span id="login-btn-text">Sign In</span>
+                </button>
+            </form>
+
+            <div class="divider-or">or</div>
+
+            <a href="register.html" class="btn btn-outline btn-full">Create New Account →</a>
+
+            <!-- Demo Credentials -->
+            <div class="demo-creds mt-4">
+                <p>🧪 <strong>Demo Credentials</strong> — click to fill:</p>
+                <div class="demo-creds-item">
+                    <span style="color:var(--text-secondary)">👤 Citizen</span>
+                    <code onclick="fillCreds('citizen@demo.in','Citizen@123')">citizen@demo.in / Citizen@123</code>
+                </div>
+                <div class="demo-creds-item">
+                    <span style="color:var(--text-secondary)">🛡️ Admin</span>
+                    <code onclick="fillCreds('admin@smartgov.in','Admin@123')">admin@smartgov.in / Admin@123</code>
+                </div>
+                <div class="demo-creds-item">
+                    <span style="color:var(--text-secondary)">⚙️ Staff</span>
+                    <code onclick="fillCreds('water@smartgov.in','Staff@123')">water@smartgov.in / Staff@123</code>
+                </div>
+            </div>
+        </div>
+
+        <p style="text-align:center; margin-top:16px; font-size:0.85rem; color:var(--text-muted)">
+            <a href="index.html">← Back to Home</a>
+        </p>
+    </div>
+
+    <div id="toast-container" class="toast-container"></div>
+    <script src="js/app.js"></script>
+    <script>
+        // Redirect if already logged in
+        if (Auth.isLoggedIn()) Utils.redirectDashboard();
+
+        // Pre-fill role from URL params
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('role') === 'admin') switchRole('admin');
+
+        function switchRole(role) {
+            document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+            document.querySelector(`[data-role="${role}"]`).classList.add('active');
+        }
+
+        function fillCreds(email, password) {
+            document.getElementById('email').value = email;
+            document.getElementById('password').value = password;
+        }
+
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('login-btn');
+            const btnText = document.getElementById('login-btn-text');
+            const errorAlert = document.getElementById('error-alert');
+            const errorMsg = document.getElementById('error-msg');
+
+            errorAlert.classList.add('hidden');
+            btn.disabled = true;
+            btnText.innerHTML = '<span class="spinner" style="width:18px;height:18px;border-width:2px"></span> Signing in...';
+
+            try {
+                const data = await API.login({
+                    email: document.getElementById('email').value,
+                    password: document.getElementById('password').value
+                });
+                Auth.save(data.token, data.user);
+                Toast.success(`Welcome back, ${data.user.full_name.split(' ')[0]}! 🎉`);
+                setTimeout(() => Utils.redirectDashboard(), 800);
+            } catch (err) {
+                errorMsg.textContent = err.message;
+                errorAlert.classList.remove('hidden');
+                btn.disabled = false;
+                btnText.textContent = 'Sign In';
+            }
+        });
+    </script>
+</body>
+
+</html>

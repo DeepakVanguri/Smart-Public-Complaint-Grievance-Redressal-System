@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Dashboard | SmartGov Citizen</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <style>
+        .complaint-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .filter-bar {
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .stat-mini {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px;
+            background: var(--surface-2);
+            border-radius: var(--radius);
+            border: 1px solid var(--card-border);
+        }
+
+        .stat-mini-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .user-profile-card {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            background: var(--gradient-primary);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .avatar-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .avatar-role {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 12px;
+            margin-bottom: 28px;
+        }
+
+        .quick-action {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            padding: 20px;
+            background: var(--surface);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-lg);
+            cursor: pointer;
+            transition: all var(--transition);
+            text-decoration: none;
+        }
+
+        .quick-action:hover {
+            border-color: rgba(59, 130, 246, 0.4);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .quick-action-icon {
+            font-size: 2rem;
+        }
+
+        .quick-action-label {
+            font-size: 0.825rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+
+        @media(max-width:600px) {
+            .complaint-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container">
+            <div style="display:flex;align-items:center;gap:12px">
+                <button id="sidebar-toggle" class="btn btn-ghost btn-icon">☰</button>
+                <a href="../index.html" class="navbar-brand">
+                    <div class="navbar-logo">🏛️</div>
+                    <div>
+                        <div class="navbar-brand-text">SmartGov</div>
+                        <div class="navbar-brand-sub">Citizen Portal</div>
+                    </div>
+                </a>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px">
+                <div style="position:relative">
+                    <button id="notif-btn" class="btn btn-ghost btn-icon" title="Notifications">🔔
+                        <span id="notif-count" class="notif-badge hidden">0</span>
+                    </button>
+                    <div id="notif-dropdown" class="notif-dropdown hidden">
+                        <div class="notif-header"><span style="font-weight:700">Notifications</span><button
+                                onclick="document.getElementById('notif-dropdown').classList.add('hidden')"
+                                class="btn btn-ghost btn-sm">✕</button></div>
+                        <div id="notif-list"></div>
+                    </div>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px">
+                    <div id="nav-avatar" class="avatar"
+                        style="width:36px;height:36px;font-size:1rem;background:var(--gradient-primary);flex-shrink:0">U
+                    </div>
+                    <div>
+                        <div id="nav-user-name" style="font-size:0.85rem;font-weight:600;color:var(--text-primary)">
+                        </div>
+                        <div id="nav-user-role" style="font-size:0.7rem;color:var(--text-muted)"></div>
+                    </div>
+                </div>
+                <button id="logout-btn" class="btn btn-ghost btn-sm" title="Logout">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="layout-with-sidebar">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">Main</div>
+            </div>
+            <a href="dashboard.html" class="sidebar-item active"><span class="sidebar-icon">📊</span> Dashboard</a>
+            <a href="submit.html" class="sidebar-item"><span class="sidebar-icon">➕</span> Submit Complaint</a>
+            <a href="my-complaints.html" class="sidebar-item"><span class="sidebar-icon">📋</span> My Complaints</a>
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">Account</div>
+            </div>
+            <a href="profile.html" class="sidebar-item"><span class="sidebar-icon">👤</span> My Profile</a>
+            <a href="#" id="sidebar-logout" class="sidebar-item"><span class="sidebar-icon">🚪</span> Sign Out</a>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- User Welcome Card -->
+            <div class="user-profile-card">
+                <div class="avatar" id="profile-avatar">U</div>
+                <div>
+                    <div class="avatar-name" id="welcome-name">Welcome back!</div>
+                    <div class="avatar-role" id="welcome-email"></div>
+                </div>
+                <div style="margin-left:auto; display:flex; gap:12px; flex-wrap:wrap">
+                    <a href="submit.html" class="btn btn-outline btn-sm"
+                        style="border-color:rgba(255,255,255,0.3);color:#fff">📝 New Complaint</a>
+                    <a href="my-complaints.html" class="btn btn-ghost btn-sm" style="color:rgba(255,255,255,0.8)">View
+                        All →</a>
+                </div>
+            </div>
+
+            <!-- Stats Mini -->
+            <div class="stats-grid" id="mini-stats">
+                <div class="stat-mini">
+                    <div class="stat-mini-icon" style="background:rgba(59,130,246,0.15)">📨</div>
+                    <div>
+                        <div class="stat-value" id="s-total" style="font-size:1.5rem">-</div>
+                        <div class="stat-label">Total Filed</div>
+                    </div>
+                </div>
+                <div class="stat-mini">
+                    <div class="stat-mini-icon" style="background:rgba(245,158,11,0.15)">⏳</div>
+                    <div>
+                        <div class="stat-value" id="s-pending" style="font-size:1.5rem">-</div>
+                        <div class="stat-label">Pending</div>
+                    </div>
+                </div>
+                <div class="stat-mini">
+                    <div class="stat-mini-icon" style="background:rgba(59,130,246,0.15)">🔧</div>
+                    <div>
+                        <div class="stat-value" id="s-progress" style="font-size:1.5rem">-</div>
+                        <div class="stat-label">In Progress</div>
+                    </div>
+                </div>
+                <div class="stat-mini">
+                    <div class="stat-mini-icon" style="background:rgba(16,185,129,0.15)">✅</div>
+                    <div>
+                        <div class="stat-value" id="s-resolved" style="font-size:1.5rem">-</div>
+                        <div class="stat-label">Resolved</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div style="margin-top:28px; margin-bottom:8px" class="section-title">Quick Actions</div>
+            <div class="quick-actions">
+                <a href="submit.html" class="quick-action">
+                    <span class="quick-action-icon">📝</span>
+                    <span class="quick-action-label">Submit New Complaint</span>
+                </a>
+                <a href="my-complaints.html?status=in_progress" class="quick-action">
+                    <span class="quick-action-icon">🔧</span>
+                    <span class="quick-action-label">Track Active Issues</span>
+                </a>
+                <a href="my-complaints.html?status=resolved" class="quick-action">
+                    <span class="quick-action-icon">⭐</span>
+                    <span class="quick-action-label">Rate Resolved Issues</span>
+                </a>
+                <a href="my-complaints.html" class="quick-action">
+                    <span class="quick-action-icon">📋</span>
+                    <span class="quick-action-label">All My Complaints</span>
+                </a>
+            </div>
+
+            <!-- Recent Complaints -->
+            <div class="page-header" style="margin-top:28px">
+                <div style="display:flex; align-items:center; justify-content:space-between">
+                    <div>
+                        <div class="page-title">Recent Complaints</div>
+                        <div class="page-subtitle">Your latest submitted civic issues</div>
+                    </div>
+                    <a href="my-complaints.html" class="btn btn-outline btn-sm">View All →</a>
+                </div>
+            </div>
+
+            <!-- Filter Bar -->
+            <div class="filter-bar flex">
+                <div class="search-wrap">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="search-input" class="form-input" placeholder="Search complaints..."
+                        oninput="filterComplaints()">
+                </div>
+                <select id="filter-status" class="form-select filter-select" onchange="filterComplaints()">
+                    <option value="">All Statuses</option>
+                    <option value="submitted">Submitted</option>
+                    <option value="acknowledged">Acknowledged</option>
+                    <option value="in_progress">In Progress</option>
+                    <option value="resolved">Resolved</option>
+                    <option value="closed">Closed</option>
+                    <option value="rejected">Rejected</option>
+                </select>
+                <select id="filter-category" class="form-select filter-select" onchange="filterComplaints()">
+                    <option value="">All Categories</option>
+                    <option value="water">💧 Water</option>
+                    <option value="electricity">⚡ Electricity</option>
+                    <option value="sanitation">🗑️ Sanitation</option>
+                    <option value="infrastructure">🏗️ Infrastructure</option>
+                    <option value="other">📋 Other</option>
+                </select>
+            </div>
+
+            <div id="loading-state" class="card" style="text-align:center; padding:40px">
+                <div class="spinner" style="margin:0 auto 12px"></div>
+                <p>Loading your complaints...</p>
+            </div>
+
+            <div id="complaints-grid" class="complaint-grid" style="display:none"></div>
+            <div id="empty-state" class="empty-state hidden">
+                <div class="empty-state-icon">📭</div>
+                <div class="empty-state-title">No complaints found</div>
+                <div class="empty-state-desc">You haven't filed any complaints yet, or none match your filter.</div>
+                <a href="submit.html" class="btn btn-primary mt-4">📝 Submit Your First Complaint</a>
+            </div>
+        </main>
+    </div>
+
+    <!-- Complaint Detail Modal -->
+    <div id="detail-modal" class="modal-overlay hidden">
+        <div class="modal" style="max-width:640px">
+            <div class="modal-header">
+                <h3 id="modal-title">Complaint Details</h3>
+                <button onclick="closeModal()" class="btn btn-ghost btn-icon">✕</button>
+            </div>
+            <div class="modal-body" id="modal-body">Loading...</div>
+            <div class="modal-footer">
+                <button onclick="closeModal()" class="btn btn-outline">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feedback Modal -->
+    <div id="feedback-modal" class="modal-overlay hidden">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>⭐ Rate This Resolution</h3>
+                <button onclick="document.getElementById('feedback-modal').classList.add('hidden')"
+                    class="btn btn-ghost btn-icon">✕</button>
+            </div>
+            <div class="modal-body">
+                <p style="margin-bottom:20px">How satisfied are you with the resolution of your complaint?</p>
+                <div class="star-rating" id="star-rating">
+                    <span class="star" onclick="setRating(1)">★</span>
+                    <span class="star" onclick="setRating(2)">★</span>
+                    <span class="star" onclick="setRating(3)">★</span>
+                    <span class="star" onclick="setRating(4)">★</span>
+                    <span class="star" onclick="setRating(5)">★</span>
+                </div>
+                <div class="form-group mt-4">
+                    <label class="form-label">Additional Comments (optional)</label>
+                    <textarea id="feedback-comment" class="form-textarea"
+                        placeholder="Tell us about your experience..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="document.getElementById('feedback-modal').classList.add('hidden')"
+                    class="btn btn-outline">Cancel</button>
+                <button onclick="submitFeedback()" class="btn btn-primary">Submit Rating</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast-container" class="toast-container"></div>
+    <script src="../js/app.js"></script>
+    <script>
+        Utils.guard(); // Redirect if not logged in
+
+        let allComplaints = [];
+        let currentFeedbackId = null;
+        let selectedRating = 0;
+
+        // Init user info
+        const user = Auth.getUser();
+        if (user) {
+            document.getElementById('profile-avatar').textContent = user.full_name.charAt(0);
+            document.getElementById('nav-avatar').textContent = user.full_name.charAt(0);
+            document.getElementById('welcome-name').textContent = `Hello, ${user.full_name.split(' ')[0]}! 👋`;
+            document.getElementById('welcome-email').textContent = user.email;
+        }
+
+        document.getElementById('sidebar-logout').addEventListener('click', () => {
+            Auth.clear(); window.location.href = '../index.html';
+        });
+
+        // Load complaints
+        async function loadComplaints() {
+            try {
+                const data = await API.getComplaints({ limit: 20 });
+                allComplaints = data.complaints;
+
+                // Update stats
+                const total = data.total;
+                const pending = allComplaints.filter(c => ['submitted', 'acknowledged'].includes(c.status)).length;
+                const inProg = allComplaints.filter(c => c.status === 'in_progress').length;
+                const resolved = allComplaints.filter(c => ['resolved', 'closed'].includes(c.status)).length;
+
+                document.getElementById('s-total').textContent = total;
+                document.getElementById('s-pending').textContent = pending;
+                document.getElementById('s-progress').textContent = inProg;
+                document.getElementById('s-resolved').textContent = resolved;
+
+                document.getElementById('loading-state').style.display = 'none';
+                renderComplaints(allComplaints.slice(0, 6)); // Show 6 recent
+            } catch (err) {
+                document.getElementById('loading-state').innerHTML = `<div class="alert alert-error"><span>❌</span><span>Failed to load complaints: ${err.message}</span></div>`;
+            }
+        }
+
+        function renderComplaints(complaints) {
+            const grid = document.getElementById('complaints-grid');
+            const empty = document.getElementById('empty-state');
+
+            if (complaints.length === 0) {
+                grid.style.display = 'none';
+                empty.classList.remove('hidden');
+                return;
+            }
+
+            grid.style.display = 'grid';
+            empty.classList.add('hidden');
+
+            grid.innerHTML = complaints.map(c => `
+        <div class="complaint-card" onclick="viewComplaint(${c.id})">
+          <div class="complaint-card-header">
+            <div>
+              <div class="complaint-number">${c.complaint_number}</div>
+              <div class="complaint-title">${c.title}</div>
+            </div>
+            ${Utils.statusBadge(c.status)}
+          </div>
+          <div class="complaint-card-body">
+            <p class="complaint-card-desc">${c.description}</p>
+          </div>
+          <div class="complaint-card-footer">
+            <div style="display:flex; gap:8px; flex-wrap:wrap">
+              ${Utils.categoryBadge(c.category)}
+              ${Utils.priorityBadge(c.priority)}
+            </div>
+            <div class="complaint-meta">
+              📅 ${Utils.timeAgo(c.created_at)}
+            </div>
+          </div>
+          ${['resolved', 'closed'].includes(c.status) ? `
+            <div class="divider"></div>
+            <button class="btn btn-sm btn-outline" style="width:100%" onclick="event.stopPropagation(); openFeedback(${c.id})">
+              ⭐ Rate Resolution
+            </button>
+          ` : ''}
+        </div>
+      `).join('');
+        }
+
+        function filterComplaints() {
+            const search = document.getElementById('search-input').value.toLowerCase();
+            const status = document.getElementById('filter-status').value;
+            const category = document.getElementById('filter-category').value;
+
+            let filtered = allComplaints;
+            if (search) filtered = filtered.filter(c => c.title.toLowerCase().includes(search) || c.complaint_number.toLowerCase().includes(search) || c.description.toLowerCase().includes(search));
+            if (status) filtered = filtered.filter(c => c.status === status);
+            if (category) filtered = filtered.filter(c => c.category === category);
+
+            renderComplaints(filtered);
+        }
+
+        async function viewComplaint(id) {
+            document.getElementById('detail-modal').classList.remove('hidden');
+            document.getElementById('modal-body').innerHTML = '<div style="text-align:center;padding:40px"><div class="spinner" style="margin:auto"></div></div>';
+
+            try {
+                const data = await API.getComplaint(id);
+                const c = data.complaint;
+                const timeline = data.timeline;
+
+                document.getElementById('modal-title').textContent = c.title;
+                document.getElementById('modal-body').innerHTML = `
+          <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px">
+            ${Utils.statusBadge(c.status)}
+            ${Utils.categoryBadge(c.category)}
+            ${Utils.priorityBadge(c.priority)}
+          </div>
+          <div class="card" style="margin-bottom:16px">
+            <div class="section-title">Complaint Details</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; font-size:0.875rem;">
+              <div><span style="color:var(--text-muted)">Number: </span><code style="font-size:0.8rem">${c.complaint_number}</code></div>
+              <div><span style="color:var(--text-muted)">Department: </span>${c.department}</div>
+              <div><span style="color:var(--text-muted)">Location: </span>${c.location}</div>
+              <div><span style="color:var(--text-muted)">Filed: </span>${Utils.formatDate(c.created_at)}</div>
+              ${c.resolved_at ? `<div><span style="color:var(--text-muted)">Resolved: </span>${Utils.formatDate(c.resolved_at)}</div>` : ''}
+              ${c.assigned_name ? `<div><span style="color:var(--text-muted)">Assigned: </span>${c.assigned_name}</div>` : ''}
+            </div>
+            <div style="margin-top:12px; font-size:0.875rem; color:var(--text-secondary)">${c.description}</div>
+            ${c.resolution_notes ? `<div style="margin-top:12px; padding:10px; background:rgba(16,185,129,0.08); border-radius:8px; border-left:3px solid var(--success); font-size:0.85rem; color:var(--text-secondary)"><strong style="color:var(--success)">Resolution Notes:</strong> ${c.resolution_notes}</div>` : ''}
+          </div>
+
+          <div class="section-title">Status Timeline</div>
+          <div class="timeline" style="margin-top:12px">
+            ${timeline.map((t, i) => `
+              <div class="timeline-item">
+                <div class="timeline-dot ${Utils.timelineColor(t.new_status)}"></div>
+                <div class="timeline-time">${Utils.formatDate(t.created_at)}</div>
+                <div class="timeline-action">${t.action}</div>
+                ${t.notes ? `<div class="timeline-notes">${t.notes}</div>` : ''}
+                <div class="timeline-actor">by ${t.updated_by_name}</div>
+              </div>
+            `).join('')}
+          </div>
+
+          ${data.feedback ? `
+            <div class="card mt-4">
+              <div class="section-title">Your Feedback</div>
+              <div class="star-rating">${Utils.renderStars(data.feedback.rating)}</div>
+              ${data.feedback.comment ? `<p style="margin-top:8px; font-size:0.875rem">${data.feedback.comment}</p>` : ''}
+            </div>
+          ` : ''}
+        `;
+            } catch (err) {
+                document.getElementById('modal-body').innerHTML = `<div class="alert alert-error">Failed to load: ${err.message}</div>`;
+            }
+        }
+
+        function closeModal() { document.getElementById('detail-modal').classList.add('hidden'); }
+
+        function openFeedback(id) {
+            currentFeedbackId = id;
+            selectedRating = 0;
+            document.querySelectorAll('#star-rating .star').forEach(s => s.classList.remove('filled'));
+            document.getElementById('feedback-comment').value = '';
+            document.getElementById('feedback-modal').classList.remove('hidden');
+        }
+
+        function setRating(r) {
+            selectedRating = r;
+            document.querySelectorAll('#star-rating .star').forEach((s, i) => {
+                s.classList.toggle('filled', i < r);
+            });
+        }
+
+        async function submitFeedback() {
+            if (!selectedRating) { Toast.warning('Please select a rating'); return; }
+            try {
+                await API.submitFeedback(currentFeedbackId, {
+                    complaint_id: currentFeedbackId,
+                    rating: selectedRating,
+                    comment: document.getElementById('feedback-comment').value
+                });
+                Toast.success('Thank you for your feedback! ⭐');
+                document.getElementById('feedback-modal').classList.add('hidden');
+            } catch (err) {
+                Toast.error(err.message);
+            }
+        }
+
+        loadComplaints();
+    </script>
+</body>
+
+</html>

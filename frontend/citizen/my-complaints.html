@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Complaints | SmartGov Citizen</title>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div style="display:flex;align-items:center;gap:12px">
+                <button id="sidebar-toggle" class="btn btn-ghost btn-icon">☰</button>
+                <a href="../index.html" class="navbar-brand">
+                    <div class="navbar-logo">🏛️</div>
+                    <div>
+                        <div class="navbar-brand-text">SmartGov</div>
+                        <div class="navbar-brand-sub">Citizen Portal</div>
+                    </div>
+                </a>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px">
+                <div style="position:relative">
+                    <button id="notif-btn" class="btn btn-ghost btn-icon">🔔<span id="notif-count"
+                            class="notif-badge hidden">0</span></button>
+                    <div id="notif-dropdown" class="notif-dropdown hidden">
+                        <div class="notif-header"><span style="font-weight:700">Notifications</span></div>
+                        <div id="notif-list"></div>
+                    </div>
+                </div>
+                <div id="nav-avatar" class="avatar"
+                    style="width:36px;height:36px;font-size:1rem;background:var(--gradient-primary)">U</div>
+                <div>
+                    <div id="nav-user-name" style="font-size:0.85rem;font-weight:600"></div>
+                    <div id="nav-user-role" style="font-size:0.7rem;color:var(--text-muted)"></div>
+                </div>
+                <button id="logout-btn" class="btn btn-ghost btn-sm">Logout</button>
+            </div>
+        </div>
+    </nav>
+    <div class="layout-with-sidebar">
+        <aside id="sidebar" class="sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">Main</div>
+            </div>
+            <a href="dashboard.html" class="sidebar-item"><span class="sidebar-icon">📊</span> Dashboard</a>
+            <a href="submit.html" class="sidebar-item"><span class="sidebar-icon">➕</span> Submit Complaint</a>
+            <a href="my-complaints.html" class="sidebar-item active"><span class="sidebar-icon">📋</span> My
+                Complaints</a>
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">Account</div>
+            </div>
+            <a href="#" onclick="Auth.clear();window.location.href='../index.html'" class="sidebar-item"><span
+                    class="sidebar-icon">🚪</span> Sign Out</a>
+        </aside>
+        <main class="main-content">
+            <div class="page-header">
+                <div class="page-title">📋 My Complaints</div>
+                <div class="page-subtitle">All your submitted civic complaints</div>
+                <a href="submit.html" class="btn btn-primary btn-sm" style="margin-top:12px">➕ New Complaint</a>
+            </div>
+
+            <!-- Filter Bar -->
+            <div class="filter-bar flex">
+                <div class="search-wrap" style="flex:2">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="search" class="form-input" placeholder="Search complaints..."
+                        oninput="onFilter()">
+                </div>
+                <select id="f-status" class="form-select filter-select" onchange="onFilter()">
+                    <option value="">All Statuses</option>
+                    <option value="submitted">Submitted</option>
+                    <option value="acknowledged">Acknowledged</option>
+                    <option value="in_progress">In Progress</option>
+                    <option value="resolved">Resolved</option>
+                    <option value="closed">Closed</option>
+                    <option value="rejected">Rejected</option>
+                </select>
+                <select id="f-category" class="form-select filter-select" onchange="onFilter()">
+                    <option value="">All Categories</option>
+                    <option value="water">💧 Water</option>
+                    <option value="electricity">⚡ Electricity</option>
+                    <option value="sanitation">🗑️ Sanitation</option>
+                    <option value="infrastructure">🏗️ Infrastructure</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+
+            <div id="loading" style="text-align:center; padding:40px">
+                <div class="spinner" style="margin:auto"></div>
+            </div>
+            <div class="table-wrap hidden" id="table-wrap">
+                <div class="table-header">
+                    <div class="table-title">All Complaints <span id="total-lbl" class="badge badge-acknowledged"
+                            style="margin-left:8px">0</span></div>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Number</th>
+                            <th>Title</th>
+                            <th>Category</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                            <th>Location</th>
+                            <th>Filed</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="complaints-body"></tbody>
+                </table>
+                <div
+                    style="display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-top:1px solid var(--card-border)">
+                    <button id="prev-btn" class="btn btn-outline btn-sm" onclick="changePage(-1)" disabled>←
+                        Prev</button>
+                    <div id="page-display" style="font-size:0.85rem;color:var(--text-muted)">Page 1</div>
+                    <button id="next-btn" class="btn btn-outline btn-sm" onclick="changePage(1)">Next →</button>
+                </div>
+            </div>
+            <div id="empty-state" class="empty-state hidden">
+                <div class="empty-state-icon">📭</div>
+                <div class="empty-state-title">No complaints found</div>
+                <div class="empty-state-desc">You haven't submitted any complaints yet or none match your filters.</div>
+                <a href="submit.html" class="btn btn-primary mt-4">📝 Submit First Complaint</a>
+            </div>
+        </main>
+    </div>
+
+    <!-- Detail Modal -->
+    <div id="detail-modal" class="modal-overlay hidden">
+        <div class="modal" style="max-width:640px">
+            <div class="modal-header">
+                <div>
+                    <h3 id="d-title">Complaint</h3><code id="d-number"
+                        style="font-size:0.8rem;color:var(--text-muted)"></code>
+                </div>
+                <button onclick="closeModal()" class="btn btn-ghost btn-icon">✕</button>
+            </div>
+            <div class="modal-body" id="d-body">Loading...</div>
+            <div class="modal-footer">
+                <button onclick="closeModal()" class="btn btn-outline">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast-container" class="toast-container"></div>
+    <script src="../js/app.js"></script>
+    <script>
+        Utils.guard();
+        let currentPage = 1, totalPages = 1;
+
+        function onFilter() { currentPage = 1; loadComplaints(); }
+        function changePage(d) { currentPage = Math.max(1, Math.min(totalPages, currentPage + d)); loadComplaints(); }
+
+        // Check for ?status= param
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('status')) document.getElementById('f-status').value = urlParams.get('status');
+
+        async function loadComplaints() {
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('table-wrap').classList.add('hidden');
+            document.getElementById('empty-state').classList.add('hidden');
+
+            try {
+                const params = { page: currentPage, limit: 15 };
+                const status = document.getElementById('f-status').value;
+                const category = document.getElementById('f-category').value;
+                if (status) params.status = status;
+                if (category) params.category = category;
+
+                const data = await API.getComplaints(params);
+                totalPages = data.total_pages || 1;
+                document.getElementById('loading').style.display = 'none';
+
+                const search = document.getElementById('search').value.toLowerCase();
+                let complaints = data.complaints;
+                if (search) complaints = complaints.filter(c => c.title.toLowerCase().includes(search) || c.complaint_number.includes(search));
+
+                if (!complaints.length) {
+                    document.getElementById('empty-state').classList.remove('hidden'); return;
+                }
+
+                document.getElementById('total-lbl').textContent = data.total;
+                document.getElementById('page-display').textContent = `Page ${currentPage} of ${totalPages}`;
+                document.getElementById('prev-btn').disabled = currentPage <= 1;
+                document.getElementById('next-btn').disabled = currentPage >= totalPages;
+
+                document.getElementById('complaints-body').innerHTML = complaints.map(c => `
+          <tr>
+            <td><code style="font-size:0.75rem;color:var(--primary-light)">${c.complaint_number}</code></td>
+            <td><div class="complaint-title" style="max-width:180px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${c.title}</div></td>
+            <td>${Utils.categoryBadge(c.category)}</td>
+            <td>${Utils.priorityBadge(c.priority)}</td>
+            <td>${Utils.statusBadge(c.status)}</td>
+            <td style="font-size:0.8rem;color:var(--text-muted)">${c.location}</td>
+            <td style="font-size:0.8rem;white-space:nowrap">${Utils.timeAgo(c.created_at)}</td>
+            <td><button class="btn btn-sm btn-outline" onclick="viewDetail(${c.id})">View</button></td>
+          </tr>
+        `).join('');
+                document.getElementById('table-wrap').classList.remove('hidden');
+            } catch (err) {
+                document.getElementById('loading').innerHTML = `<div class="alert alert-error">${err.message}</div>`;
+            }
+        }
+
+        async function viewDetail(id) {
+            document.getElementById('detail-modal').classList.remove('hidden');
+            document.getElementById('d-body').innerHTML = '<div style="text-align:center;padding:40px"><div class="spinner" style="margin:auto"></div></div>';
+            try {
+                const data = await API.getComplaint(id);
+                const c = data.complaint;
+                document.getElementById('d-title').textContent = c.title;
+                document.getElementById('d-number').textContent = c.complaint_number;
+                document.getElementById('d-body').innerHTML = `
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+            ${Utils.statusBadge(c.status)} ${Utils.categoryBadge(c.category)} ${Utils.priorityBadge(c.priority)}
+          </div>
+          <div class="card" style="margin-bottom:16px">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:0.855rem">
+              <div><span style="color:var(--text-muted)">Department: </span>${c.department}</div>
+              <div><span style="color:var(--text-muted)">Location: </span>${c.location}</div>
+              <div><span style="color:var(--text-muted)">Filed: </span>${Utils.formatDate(c.created_at)}</div>
+              ${c.resolved_at ? `<div><span style="color:var(--text-muted)">Resolved: </span>${Utils.formatDate(c.resolved_at)}</div>` : ''}
+            </div>
+            <div style="margin-top:12px;font-size:0.85rem;color:var(--text-secondary)">${c.description}</div>
+            ${c.resolution_notes ? `<div style="margin-top:10px;padding:10px;border-left:3px solid var(--success);background:rgba(16,185,129,0.06);border-radius:6px;font-size:0.83rem;color:var(--text-secondary)"><strong>Resolution:</strong> ${c.resolution_notes}</div>` : ''}
+          </div>
+          <div class="section-title">Timeline</div>
+          <div class="timeline" style="margin-top:12px">
+            ${data.timeline.map(t => `
+              <div class="timeline-item">
+                <div class="timeline-dot ${Utils.timelineColor(t.new_status)}"></div>
+                <div class="timeline-time">${Utils.formatDate(t.created_at)}</div>
+                <div class="timeline-action">${t.action}</div>
+                ${t.notes ? `<div class="timeline-notes">${t.notes}</div>` : ''}
+              </div>
+            `).join('')}
+          </div>
+        `;
+            } catch (err) {
+                document.getElementById('d-body').innerHTML = `<div class="alert alert-error">${err.message}</div>`;
+            }
+        }
+
+        function closeModal() { document.getElementById('detail-modal').classList.add('hidden'); }
+
+        loadComplaints();
+    </script>
+</body>
+
+</html>

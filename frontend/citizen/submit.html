@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit Complaint | SmartGov Citizen</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <style>
+        .submit-layout {
+            display: grid;
+            grid-template-columns: 1fr 360px;
+            gap: 28px;
+        }
+
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .category-card {
+            border: 2px solid var(--card-border);
+            border-radius: var(--radius);
+            padding: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all var(--transition);
+        }
+
+        .category-card:hover {
+            border-color: var(--primary);
+            background: rgba(59, 130, 246, 0.05);
+        }
+
+        .category-card.selected {
+            border-color: var(--primary);
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .category-card input {
+            display: none;
+        }
+
+        .category-card-icon {
+            font-size: 2rem;
+            margin-bottom: 6px;
+        }
+
+        .category-card-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .priority-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        .priority-option {
+            border: 2px solid var(--card-border);
+            border-radius: var(--radius);
+            padding: 10px 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all var(--transition);
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .priority-option:hover,
+        .priority-option.selected {
+            border-color: currentColor;
+        }
+
+        .priority-option.low {
+            color: #6ee7b7;
+        }
+
+        .priority-option.medium {
+            color: #fcd34d;
+        }
+
+        .priority-option.high {
+            color: #fca5a5;
+        }
+
+        .priority-option.urgent {
+            color: #f87171;
+        }
+
+        .priority-option.low.selected {
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .priority-option.medium.selected {
+            background: rgba(245, 158, 11, 0.1);
+        }
+
+        .priority-option.high.selected {
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .priority-option.urgent.selected {
+            background: rgba(220, 38, 38, 0.15);
+            animation: pulse-border 2s infinite;
+        }
+
+        .priority-option input {
+            display: none;
+        }
+
+        .tips-card {
+            background: var(--surface);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+        }
+
+        .tip-item {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .tip-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--primary);
+            border-radius: 50%;
+            margin-top: 7px;
+            flex-shrink: 0;
+        }
+
+        .char-count {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-align: right;
+        }
+
+        @media(max-width:900px) {
+            .submit-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media(max-width:480px) {
+            .category-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .priority-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div style="display:flex;align-items:center;gap:12px">
+                <button id="sidebar-toggle" class="btn btn-ghost btn-icon">☰</button>
+                <a href="../index.html" class="navbar-brand">
+                    <div class="navbar-logo">🏛️</div>
+                    <div>
+                        <div class="navbar-brand-text">SmartGov</div>
+                        <div class="navbar-brand-sub">Citizen Portal</div>
+                    </div>
+                </a>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px">
+                <div style="position:relative">
+                    <button id="notif-btn" class="btn btn-ghost btn-icon">🔔
+                        <span id="notif-count" class="notif-badge hidden">0</span>
+                    </button>
+                    <div id="notif-dropdown" class="notif-dropdown hidden">
+                        <div class="notif-header"><span style="font-weight:700">Notifications</span><button
+                                onclick="document.getElementById('notif-dropdown').classList.add('hidden')"
+                                class="btn btn-ghost btn-sm">✕</button></div>
+                        <div id="notif-list"></div>
+                    </div>
+                </div>
+                <div id="nav-avatar" class="avatar"
+                    style="width:36px;height:36px;font-size:1rem;background:var(--gradient-primary)">U</div>
+                <div>
+                    <div id="nav-user-name" style="font-size:0.85rem;font-weight:600;color:var(--text-primary)"></div>
+                    <div id="nav-user-role" style="font-size:0.7rem;color:var(--text-muted)"></div>
+                </div>
+                <button id="logout-btn" class="btn btn-ghost btn-sm">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="layout-with-sidebar">
+        <aside id="sidebar" class="sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">Main</div>
+            </div>
+            <a href="dashboard.html" class="sidebar-item"><span class="sidebar-icon">📊</span> Dashboard</a>
+            <a href="submit.html" class="sidebar-item active"><span class="sidebar-icon">➕</span> Submit Complaint</a>
+            <a href="my-complaints.html" class="sidebar-item"><span class="sidebar-icon">📋</span> My Complaints</a>
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">Account</div>
+            </div>
+            <a href="profile.html" class="sidebar-item"><span class="sidebar-icon">👤</span> My Profile</a>
+            <a href="#" onclick="Auth.clear();window.location.href='../index.html'" class="sidebar-item"><span
+                    class="sidebar-icon">🚪</span> Sign Out</a>
+        </aside>
+
+        <main class="main-content">
+            <div class="page-header">
+                <div class="breadcrumb"><a href="dashboard.html">Dashboard</a><span
+                        class="breadcrumb-sep">›</span><span>Submit Complaint</span></div>
+                <div class="page-title">📝 Submit New Complaint</div>
+                <div class="page-subtitle">Fill in the details below to register your civic complaint</div>
+            </div>
+
+            <!-- Success State -->
+            <div id="success-state" class="card hidden" style="text-align:center; padding:60px 32px">
+                <div style="font-size:5rem; margin-bottom:20px">✅</div>
+                <h2 style="color: var(--success); margin-bottom:8px">Complaint Registered!</h2>
+                <p style="margin-bottom:4px">Your complaint number is:</p>
+                <div style="font-size:1.5rem; font-weight:800; font-family:monospace; color:var(--primary-light); margin:12px 0"
+                    id="success-number"></div>
+                <p style="max-width:400px; margin:0 auto 28px">Your complaint has been submitted and our team will
+                    review it shortly. You'll receive updates as the status changes.</p>
+                <div style="display:flex; gap:12px; justify-content:center">
+                    <a href="my-complaints.html" class="btn btn-primary">View My Complaints</a>
+                    <button onclick="resetForm()" class="btn btn-outline">Submit Another</button>
+                </div>
+            </div>
+
+            <div id="form-section">
+                <div class="submit-layout">
+                    <!-- Left: Form -->
+                    <div>
+                        <form id="complaint-form">
+                            <!-- Category Selection -->
+                            <div class="card" style="margin-bottom:20px">
+                                <h4 style="margin-bottom:16px">📂 Select Category</h4>
+                                <div class="category-grid">
+                                    <label class="category-card" id="cat-water">
+                                        <input type="radio" name="category" value="water">
+                                        <div class="category-card-icon">💧</div>
+                                        <div class="category-card-label">Water Supply</div>
+                                    </label>
+                                    <label class="category-card" id="cat-electricity">
+                                        <input type="radio" name="category" value="electricity">
+                                        <div class="category-card-icon">⚡</div>
+                                        <div class="category-card-label">Electricity</div>
+                                    </label>
+                                    <label class="category-card" id="cat-sanitation">
+                                        <input type="radio" name="category" value="sanitation">
+                                        <div class="category-card-icon">🗑️</div>
+                                        <div class="category-card-label">Sanitation</div>
+                                    </label>
+                                    <label class="category-card" id="cat-infrastructure">
+                                        <input type="radio" name="category" value="infrastructure">
+                                        <div class="category-card-icon">🏗️</div>
+                                        <div class="category-card-label">Infrastructure</div>
+                                    </label>
+                                    <label class="category-card" id="cat-other">
+                                        <input type="radio" name="category" value="other">
+                                        <div class="category-card-icon">📋</div>
+                                        <div class="category-card-label">Other</div>
+                                    </label>
+                                </div>
+                                <div id="cat-error" class="form-error hidden" style="margin-top:8px">Please select a
+                                    category</div>
+                            </div>
+
+                            <!-- Complaint Info -->
+                            <div class="card" style="margin-bottom:20px">
+                                <h4 style="margin-bottom:16px">📄 Complaint Details</h4>
+                                <div class="form-group" style="margin-bottom:16px">
+                                    <label class="form-label">Complaint Title *</label>
+                                    <input id="title" type="text" class="form-input"
+                                        placeholder="Brief title of your issue (e.g. Water supply disrupted for 3 days)"
+                                        required maxlength="120"
+                                        oninput="document.getElementById('title-count').textContent = this.value.length + '/120'">
+                                    <div class="char-count" id="title-count">0/120</div>
+                                </div>
+                                <div class="form-group" style="margin-bottom:16px">
+                                    <label class="form-label">Description *</label>
+                                    <textarea id="description" class="form-textarea"
+                                        placeholder="Provide detailed information about the issue. The more details you give, the faster it can be resolved."
+                                        required style="min-height:130px" maxlength="1000"
+                                        oninput="document.getElementById('desc-count').textContent = this.value.length + '/1000'"></textarea>
+                                    <div class="char-count" id="desc-count">0/1000</div>
+                                </div>
+                                <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px">
+                                    <div class="form-group">
+                                        <label class="form-label">Department *</label>
+                                        <select id="department" class="form-select" required>
+                                            <option value="">Select Department</option>
+                                            <option value="Water Supply">💧 Water Supply</option>
+                                            <option value="Electricity">⚡ Electricity</option>
+                                            <option value="Sanitation">🗑️ Sanitation</option>
+                                            <option value="Infrastructure">🏗️ Infrastructure</option>
+                                            <option value="Public Works">🔨 Public Works</option>
+                                            <option value="Municipality">🏛️ Municipality</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Location / Address *</label>
+                                        <input id="location" type="text" class="form-input"
+                                            placeholder="e.g. Sector 12, Block B" required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Priority -->
+                            <div class="card" style="margin-bottom:24px">
+                                <h4 style="margin-bottom:4px">🎯 Priority Level</h4>
+                                <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:14px">How urgent is
+                                    this issue?</p>
+                                <div class="priority-grid">
+                                    <label class="priority-option low selected">
+                                        <input type="radio" name="priority" value="low" checked>
+                                        🟢 Low
+                                    </label>
+                                    <label class="priority-option medium">
+                                        <input type="radio" name="priority" value="medium">
+                                        🟡 Medium
+                                    </label>
+                                    <label class="priority-option high">
+                                        <input type="radio" name="priority" value="high">
+                                        🔴 High
+                                    </label>
+                                    <label class="priority-option urgent">
+                                        <input type="radio" name="priority" value="urgent">
+                                        🚨 Urgent
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div id="form-error" class="alert alert-error hidden" style="margin-bottom:16px">
+                                <span>❌</span><span id="error-text"></span>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-full btn-lg" id="submit-btn">
+                                <span id="submit-btn-text">📤 Submit Complaint</span>
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Right: Tips -->
+                    <div>
+                        <div class="tips-card">
+                            <h4 style="margin-bottom:16px">💡 Tips for a Good Complaint</h4>
+                            <div class="tip-item">
+                                <div class="tip-dot"></div>
+                                <div>Be specific about the location — include landmark, street, ward number</div>
+                            </div>
+                            <div class="tip-item">
+                                <div class="tip-dot"></div>
+                                <div>Describe the issue clearly with duration (e.g., "since 3 days")</div>
+                            </div>
+                            <div class="tip-item">
+                                <div class="tip-dot"></div>
+                                <div>Choose the correct category and department for faster routing</div>
+                            </div>
+                            <div class="tip-item">
+                                <div class="tip-dot"></div>
+                                <div>Set priority honestly — reserve "Urgent" for health/safety risks</div>
+                            </div>
+                            <div class="tip-item">
+                                <div class="tip-dot"></div>
+                                <div>You can track your complaint's progress after submission</div>
+                            </div>
+                        </div>
+
+                        <div class="card mt-4">
+                            <h4 style="margin-bottom:12px">📊 Resolution Time Estimates</h4>
+                            <div style="display:flex; flex-direction:column; gap:8px">
+                                <div
+                                    style="display:flex; justify-content:space-between; align-items:center; font-size:0.85rem">
+                                    <span>💧 Water Supply</span><span
+                                        style="color:var(--success); font-weight:600">24-48h</span>
+                                </div>
+                                <div
+                                    style="display:flex; justify-content:space-between; align-items:center; font-size:0.85rem">
+                                    <span>⚡ Electricity</span><span
+                                        style="color:var(--success); font-weight:600">12-24h</span>
+                                </div>
+                                <div
+                                    style="display:flex; justify-content:space-between; align-items:center; font-size:0.85rem">
+                                    <span>🗑️ Sanitation</span><span
+                                        style="color:var(--warning); font-weight:600">48-72h</span>
+                                </div>
+                                <div
+                                    style="display:flex; justify-content:space-between; align-items:center; font-size:0.85rem">
+                                    <span>🏗️ Infrastructure</span><span
+                                        style="color:var(--danger); font-weight:600">3-7 days</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="toast-container" class="toast-container"></div>
+    <script src="../js/app.js"></script>
+    <script>
+        Utils.guard();
+
+        // Category card selection
+        document.querySelectorAll('.category-grid input').forEach(radio => {
+            radio.addEventListener('change', function () {
+                document.querySelectorAll('.category-card').forEach(c => c.classList.remove('selected'));
+                this.closest('.category-card').classList.add('selected');
+                // Auto-fill department
+                const deptMap = { water: 'Water Supply', electricity: 'Electricity', sanitation: 'Sanitation', infrastructure: 'Infrastructure' };
+                if (deptMap[this.value]) document.getElementById('department').value = deptMap[this.value];
+            });
+        });
+
+        // Priority selection
+        document.querySelectorAll('.priority-grid input').forEach(radio => {
+            radio.addEventListener('change', function () {
+                document.querySelectorAll('.priority-option').forEach(p => p.classList.remove('selected'));
+                this.closest('.priority-option').classList.add('selected');
+            });
+        });
+
+        document.getElementById('complaint-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const catSelected = document.querySelector('input[name="category"]:checked');
+            if (!catSelected) {
+                document.getElementById('cat-error').classList.remove('hidden');
+                return;
+            }
+            document.getElementById('cat-error').classList.add('hidden');
+            document.getElementById('form-error').classList.add('hidden');
+
+            const btn = document.getElementById('submit-btn');
+            const btnText = document.getElementById('submit-btn-text');
+            btn.disabled = true;
+            btnText.innerHTML = '<span class="spinner" style="width:18px;height:18px;border-width:2px"></span> Submitting...';
+
+            try {
+                const data = await API.submitComplaint({
+                    title: document.getElementById('title').value,
+                    description: document.getElementById('description').value,
+                    category: catSelected.value,
+                    department: document.getElementById('department').value,
+                    location: document.getElementById('location').value,
+                    priority: document.querySelector('input[name="priority"]:checked').value
+                });
+
+                document.getElementById('form-section').style.display = 'none';
+                document.getElementById('success-state').classList.remove('hidden');
+                document.getElementById('success-number').textContent = data.complaint_number;
+                Toast.success('Complaint submitted successfully! 🎉');
+            } catch (err) {
+                document.getElementById('error-text').textContent = err.message;
+                document.getElementById('form-error').classList.remove('hidden');
+                btn.disabled = false;
+                btnText.textContent = '📤 Submit Complaint';
+            }
+        });
+
+        function resetForm() {
+            document.getElementById('form-section').style.display = 'block';
+            document.getElementById('success-state').classList.add('hidden');
+            document.getElementById('complaint-form').reset();
+            document.querySelectorAll('.category-card').forEach(c => c.classList.remove('selected'));
+            document.querySelectorAll('.priority-option').forEach(p => p.classList.remove('selected'));
+            document.querySelector('.priority-option.low').classList.add('selected');
+        }
+    </script>
+</body>
+
+</html>

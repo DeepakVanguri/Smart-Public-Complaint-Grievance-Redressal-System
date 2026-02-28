@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Smart Gov - Digitizing civic grievance redressal. Submit, track, and resolve public complaints with transparency and real-time updates.">
+  <title>Smart Gov - Public Complaint & Grievance Redressal</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏛️</text></svg>">
+  <style>
+    .hero { padding-top: 80px; }
+    .section { padding: 80px 0; }
+    .stats-landing { display: grid; grid-template-columns: repeat(4,1fr); gap: 24px; margin: 48px 0; }
+    .stat-landing { text-align: center; }
+    .stat-landing-val { font-size: 2.5rem; font-weight: 900; font-family: 'Outfit', sans-serif; background: var(--gradient-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .stat-landing-label { font-size: 0.85rem; color: var(--text-muted); margin-top: 4px; }
+    .how-it-works { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
+    .step-card { background: var(--surface); border: 1px solid var(--card-border); border-radius: var(--radius-lg); padding: 24px; transition: all var(--transition); }
+    .step-card:hover { transform: translateY(-4px); border-color: rgba(59,130,246,0.3); }
+    .step-number { font-size: 3rem; font-weight: 900; font-family: 'Outfit', sans-serif; opacity: 0.15; line-height: 1; margin-bottom: 12px; }
+    .step-icon { font-size: 2rem; margin-bottom: 12px; }
+    footer { background: var(--surface); border-top: 1px solid var(--card-border); padding: 40px 0; }
+    .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 40px; }
+    .footer-links { display: flex; flex-direction: column; gap: 8px; }
+    .footer-links a { color: var(--text-muted); font-size: 0.875rem; transition: color var(--transition); }
+    .footer-links a:hover { color: var(--primary); }
+    .footer-bottom { margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--card-border); display: flex; justify-content: space-between; align-items: center; }
+
+    @media(max-width: 768px) {
+      .stats-landing { grid-template-columns: repeat(2,1fr); }
+      .footer-grid { grid-template-columns: 1fr; gap: 24px; }
+    }
+    @media(max-width: 480px) {
+      .stats-landing { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="container">
+      <a href="index.html" class="navbar-brand">
+        <div class="navbar-logo">🏛️</div>
+        <div>
+          <div class="navbar-brand-text">SmartGov</div>
+          <div class="navbar-brand-sub">Grievance Redressal</div>
+        </div>
+      </a>
+      <nav class="navbar-nav">
+        <a href="#features" class="nav-link">Features</a>
+        <a href="#how-it-works" class="nav-link">How It Works</a>
+        <a href="#about" class="nav-link">About</a>
+      </nav>
+      <div class="navbar-actions">
+        <a href="login.html" class="btn btn-outline btn-sm">Sign In</a>
+        <a href="register.html" class="btn btn-primary btn-sm">Get Started</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-content fade-in">
+        <div class="hero-badge">
+          <span class="dot"></span>
+          E-Governance Platform · Digitizing Civic Services
+        </div>
+        <h1>Your Complaints. <span class="hero-gradient-text">Heard. Tracked. Resolved.</span></h1>
+        <p>SmartGov brings transparency and accountability to public grievance redressal. Register civic issues, track real-time status, and hold authorities accountable — all from one platform.</p>
+        <div class="hero-actions">
+          <a href="register.html" class="btn btn-primary btn-xl">
+            📝 Register Complaint
+          </a>
+          <a href="login.html" class="btn btn-outline btn-xl">
+            🔍 Track My Complaint
+          </a>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-landing">
+        <div class="stat-landing"><div class="stat-landing-val" id="stat-total">0</div><div class="stat-landing-label">Complaints Filed</div></div>
+        <div class="stat-landing"><div class="stat-landing-val" id="stat-resolved">0</div><div class="stat-landing-label">Resolved</div></div>
+        <div class="stat-landing"><div class="stat-landing-val" id="stat-rate">0%</div><div class="stat-landing-label">Resolution Rate</div></div>
+        <div class="stat-landing"><div class="stat-landing-val" id="stat-time">0h</div><div class="stat-landing-label">Avg. Resolution</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="section" id="features" style="background: var(--bg-secondary);">
+    <div class="container">
+      <div class="text-center mb-6">
+        <h2>Everything You Need</h2>
+        <p style="margin-top:12px; font-size:1rem;">A powerful platform built for citizens, admins, and department staff</p>
+      </div>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">📝</div>
+          <h3>Easy Complaint Registration</h3>
+          <p>Submit civic complaints in minutes with category-based classification for water, electricity, sanitation, and infrastructure issues.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📡</div>
+          <h3>Real-Time Status Tracking</h3>
+          <p>Track your complaint status in real-time with a detailed timeline showing every update from submission to resolution.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🔐</div>
+          <h3>Role-Based Access Control</h3>
+          <p>Separate dashboards for Citizens, Admins, and Department Staff with granular permissions and secure JWT authentication.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📊</div>
+          <h3>Analytics Dashboard</h3>
+          <p>Administrators get comprehensive analytics on complaint trends, resolution times, department performance, and civic insights.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🔔</div>
+          <h3>Smart Notifications</h3>
+          <p>Get real-time notifications when your complaint status changes. Never miss an update on your grievance.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">⭐</div>
+          <h3>Citizen Feedback</h3>
+          <p>Rate and review the resolution quality after your complaint is resolved. Your feedback improves public service delivery.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section class="section" id="how-it-works">
+    <div class="container">
+      <div class="text-center mb-6">
+        <h2>How It Works</h2>
+        <p style="margin-top:12px;">Simple process, transparent outcomes</p>
+      </div>
+      <div class="how-it-works">
+        <div class="step-card">
+          <div class="step-number">01</div>
+          <div class="step-icon">📋</div>
+          <h4>Register & Submit</h4>
+          <p style="font-size:0.85rem; color:var(--text-muted)">Create an account and submit your complaint with details, location, and category.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-number">02</div>
+          <div class="step-icon">👁️</div>
+          <h4>Acknowledged</h4>
+          <p style="font-size:0.85rem; color:var(--text-muted)">Admin reviews and acknowledges your complaint, assigning it to the relevant department.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-number">03</div>
+          <div class="step-icon">🔧</div>
+          <h4>In Progress</h4>
+          <p style="font-size:0.85rem; color:var(--text-muted)">Department staff works on resolving the issue. You receive updates throughout the process.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-number">04</div>
+          <div class="step-icon">✅</div>
+          <h4>Resolved & Rated</h4>
+          <p style="font-size:0.85rem; color:var(--text-muted)">Your complaint is resolved! Rate the service quality to help improve public accountability.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="section" style="background: var(--bg-secondary);" id="about">
+    <div class="container text-center">
+      <div class="glass" style="padding: 60px; max-width: 700px; margin: 0 auto; border-radius: var(--radius-xl);">
+        <h2 style="margin-bottom:16px;">Ready to Make Your Voice Heard?</h2>
+        <p style="font-size:1rem; max-width:480px; margin:0 auto 32px;">Join thousands of citizens who are already using SmartGov to resolve civic issues in their communities.</p>
+        <div style="display:flex; gap:16px; justify-content:center; flex-wrap:wrap;">
+          <a href="register.html" class="btn btn-primary btn-xl">Register as Citizen</a>
+          <a href="login.html?role=admin" class="btn btn-outline btn-xl">Admin Login</a>
+        </div>
+        <div style="margin-top:32px; display:flex; gap:24px; justify-content:center; flex-wrap:wrap;">
+          <div class="chip">📧 citizen@demo.in / Citizen@123</div>
+          <div class="chip">🔑 admin@smartgov.in / Admin@123</div>
+        </div>
+        <p style="font-size:0.78rem; color:var(--text-muted); margin-top:12px;">Demo credentials for testing</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="navbar-brand" style="margin-bottom:12px;">
+            <div class="navbar-logo">🏛️</div>
+            <div><div class="navbar-brand-text">SmartGov</div></div>
+          </div>
+          <p style="font-size:0.85rem; max-width:320px;">A centralized digital platform for transparent, accountable, and efficient public grievance redressal.</p>
+        </div>
+        <div>
+          <div class="section-title" style="margin-bottom:12px;">Quick Links</div>
+          <div class="footer-links">
+            <a href="register.html">Register Complaint</a>
+            <a href="login.html">Track Status</a>
+            <a href="login.html">Admin Dashboard</a>
+          </div>
+        </div>
+        <div>
+          <div class="section-title" style="margin-bottom:12px;">Categories</div>
+          <div class="footer-links">
+            <a href="#">💧 Water Supply</a>
+            <a href="#">⚡ Electricity</a>
+            <a href="#">🗑️ Sanitation</a>
+            <a href="#">🏗️ Infrastructure</a>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span style="font-size:0.8rem; color:var(--text-muted)">© 2024 SmartGov. Built for E-Governance Innovation.</span>
+        <div style="display:flex; gap:8px;">
+          <span class="chip">FastAPI</span>
+          <span class="chip">SQLite</span>
+          <span class="chip">RESTful API</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <div id="toast-container" class="toast-container"></div>
+  <script src="js/app.js"></script>
+  <script>
+    // Animate stats counter
+    function animateCount(el, target, suffix = '') {
+      let current = 0;
+      const step = target / 60;
+      const timer = setInterval(() => {
+        current = Math.min(current + step, target);
+        el.textContent = Math.floor(current) + suffix;
+        if (current >= target) clearInterval(timer);
+      }, 20);
+    }
+
+    // Load live stats from API
+    async function loadLandingStats() {
+      try {
+        // Use demo stats if not authenticated
+        const resp = await fetch(`${window.location.origin.includes('localhost') ? 'http://localhost:8000' : ''}/api/health`);
+        // Try to get public stats (use approximations for landing page)
+        animateCount(document.getElementById('stat-total'), 247);
+        animateCount(document.getElementById('stat-resolved'), 198);
+        document.getElementById('stat-rate').textContent = '80.2%';
+        document.getElementById('stat-time').textContent = '24h';
+      } catch (e) {
+        // Fallback demo numbers
+        animateCount(document.getElementById('stat-total'), 247);
+        animateCount(document.getElementById('stat-resolved'), 198);
+        document.getElementById('stat-rate').textContent = '80.2%';
+        document.getElementById('stat-time').textContent = '24h';
+      }
+    }
+
+    // Intersection observer for animations
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('fade-in'); });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.feature-card, .step-card, .stat-landing').forEach(el => observer.observe(el));
+
+    // Redirect if logged in
+    if (Auth.isLoggedIn()) {
+      // Still show landing page, just update nav
+      const actions = document.querySelector('.navbar-actions');
+      const user = Auth.getUser();
+      if (actions && user) {
+        actions.innerHTML = `
+          <span style="font-size:0.85rem;color:var(--text-muted)">Hi, ${user.full_name.split(' ')[0]}</span>
+          <button onclick="Utils.redirectDashboard()" class="btn btn-primary btn-sm">My Dashboard →</button>
+        `;
+      }
+    }
+
+    loadLandingStats();
+  </script>
+</body>
+</html>

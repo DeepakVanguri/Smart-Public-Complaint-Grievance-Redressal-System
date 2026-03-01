@@ -286,14 +286,5 @@ The database (`complaints.db`) is **auto-created and seeded** on first run with 
 6. ⏰ **Escalation Engine** — Auto-escalate unresolved complaints after N days
 7. 📡 **Public City Dashboard** — Live complaint heatmap visible to all citizens
 
----
-
-## � Developer
-
-**Deepak Vanguri**  
-📧 deepakvanguri7101@gmail.com  
-📅 Developed: February 2026
-
----
 
 > *SmartGov — Making Governance Accountable, Transparent & Citizen-Centric* 🏛️

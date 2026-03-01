@@ -310,6 +310,10 @@
             <div class="modal-body" id="modal-body">Loading...</div>
             <div class="modal-footer">
                 <button onclick="closeModal()" class="btn btn-outline">Close</button>
+                <button id="modal-delete-btn" class="btn"
+                    style="background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.4);color:var(--danger);font-weight:700;display:none">
+                    🗑️ Delete Complaint
+                </button>
             </div>
         </div>
     </div>
@@ -431,6 +435,12 @@
               ⭐ Rate Resolution
             </button>
           ` : ''}
+          ${['submitted', 'acknowledged'].includes(c.status) ? `
+            <div class="divider"></div>
+            <button class="btn btn-sm btn-full" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.35);color:var(--danger)" onclick="event.stopPropagation(); deleteComplaint(${c.id}, '${c.title.replace(/'/g, "'")}')">
+              🗑️ Delete
+            </button>
+          ` : ''}
         </div>
       `).join('');
         }
@@ -458,6 +468,10 @@
                 const timeline = data.timeline;
 
                 document.getElementById('modal-title').textContent = c.title;
+                // Show delete button only for submitted/acknowledged
+                var delBtn = document.getElementById('modal-delete-btn');
+                delBtn.style.display = ['submitted', 'acknowledged'].includes(c.status) ? 'inline-flex' : 'none';
+                delBtn.onclick = function () { deleteComplaint(c.id, c.title); closeModal(); };
                 document.getElementById('modal-body').innerHTML = `
           <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px">
             ${Utils.statusBadge(c.status)}
@@ -533,6 +547,18 @@
                 document.getElementById('feedback-modal').classList.add('hidden');
             } catch (err) {
                 Toast.error(err.message);
+            }
+        }
+
+        async function deleteComplaint(id, title) {
+            if (!confirm('🗑️ Delete "' + title + '"?\n\nThis will permanently remove the complaint. This action cannot be undone.')) return;
+            try {
+                await API.deleteComplaint(id);
+                Toast.success('Complaint deleted successfully 🗑️');
+                document.getElementById('detail-modal').classList.add('hidden');
+                loadComplaints();
+            } catch (err) {
+                Toast.error('Delete failed: ' + err.message);
             }
         }
 

@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Dashboard | SmartGov</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <style>
+        .staff-welcome {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            background: linear-gradient(135deg, #1e3a5f 0%, #1a2744 100%);
+            border: 1px solid rgba(59, 130, 246, 0.25);
+            border-radius: var(--radius-xl);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .staff-avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3b82f6, #06b6d4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
+            flex-shrink: 0;
+        }
+
+        .dept-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            background: rgba(59, 130, 246, 0.15);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 100px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--primary-light);
+        }
+
+        .tab-bar {
+            display: flex;
+            gap: 4px;
+            background: var(--surface-2);
+            border-radius: var(--radius);
+            padding: 4px;
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 10px 16px;
+            border: none;
+            border-radius: calc(var(--radius) - 2px);
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition);
+        }
+
+        .tab-btn.active {
+            background: var(--surface);
+            color: var(--text-primary);
+            box-shadow: var(--shadow);
+        }
+
+        .complaint-card {
+            background: var(--surface);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            transition: all var(--transition);
+            cursor: pointer;
+        }
+
+        .complaint-card:hover {
+            border-color: rgba(59, 130, 246, 0.35);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .complaint-card.urgent-card {
+            border-left: 4px solid var(--danger);
+        }
+
+        .complaint-card.high-card {
+            border-left: 4px solid #f97316;
+        }
+
+        .complaint-card.medium-card {
+            border-left: 4px solid var(--warning);
+        }
+
+        .complaint-card.low-card {
+            border-left: 4px solid var(--success);
+        }
+
+        .complaints-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 16px;
+        }
+
+        .stat-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-box {
+            background: var(--surface);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-lg);
+            padding: 16px;
+            text-align: center;
+        }
+
+        .stat-box-val {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+
+        .stat-box-lbl {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        @media(max-width:900px) {
+            .stat-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media(max-width:600px) {
+            .complaints-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stat-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div style="display:flex;align-items:center;gap:12px">
+                <button id="sidebar-toggle" class="btn btn-ghost btn-icon">☰</button>
+                <a href="/static/index.html" class="navbar-brand">
+                    <div class="navbar-logo">🏛️</div>
+                    <div>
+                        <div class="navbar-brand-text">SmartGov</div>
+                        <div class="navbar-brand-sub">Staff Portal</div>
+                    </div>
+                </a>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px">
+                <div style="position:relative">
+                    <button id="notif-btn" class="btn btn-ghost btn-icon" title="Notifications">🔔
+                        <span id="notif-count" class="notif-badge hidden">0</span>
+                    </button>
+                    <div id="notif-dropdown" class="notif-dropdown hidden">
+                        <div class="notif-header">
+                            <span style="font-weight:700">Notifications</span>
+                            <button onclick="document.getElementById('notif-dropdown').classList.add('hidden')"
+                                class="btn btn-ghost btn-sm">✕</button>
+                        </div>
+                        <div id="notif-list"></div>
+                    </div>
+                </div>
+                <span class="badge badge-in_progress" style="font-size:0.7rem">STAFF</span>
+                <div id="nav-avatar"
+                    style="width:36px;height:36px;font-size:1rem;background:linear-gradient(135deg,#3b82f6,#06b6d4);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;flex-shrink:0">
+                    S</div>
+                <div>
+                    <div id="nav-user-name" style="font-size:0.85rem;font-weight:600;color:var(--text-primary)"></div>
+                    <div id="nav-user-dept" style="font-size:0.7rem;color:var(--text-muted)"></div>
+                </div>
+                <button id="logout-btn" class="btn btn-ghost btn-sm">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="layout-with-sidebar">
+        <aside id="sidebar" class="sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">My Work</div>
+            </div>
+            <a href="/static/staff/dashboard.html" class="sidebar-item active"><span class="sidebar-icon">📊</span>
+                Dashboard</a>
+            <a href="#" id="link-assigned" class="sidebar-item"><span class="sidebar-icon">📌</span> Assigned to Me</a>
+            <a href="#" id="link-dept" class="sidebar-item"><span class="sidebar-icon">🏢</span> Dept. Complaints</a>
+            <a href="#" id="link-all" class="sidebar-item"><span class="sidebar-icon">📋</span> All Complaints</a>
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">Account</div>
+            </div>
+            <a href="#" id="sidebar-logout" class="sidebar-item"><span class="sidebar-icon">🚪</span> Sign Out</a>
+        </aside>
+
+        <main class="main-content">
+            <div class="staff-welcome fade-in">
+                <div class="staff-avatar" id="profile-avatar">S</div>
+                <div style="flex:1">
+                    <div style="font-size:1.1rem;font-weight:700;color:#fff" id="welcome-name">Welcome, Staff!</div>
+                    <div style="font-size:0.85rem;color:rgba(255,255,255,0.6);margin:4px 0" id="welcome-email"></div>
+                    <div style="margin-top:8px"><span class="dept-badge" id="dept-badge">⚙️ Department</span></div>
+                </div>
+                <div style="text-align:right;display:flex;flex-direction:column;gap:8px;align-items:flex-end">
+                    <div style="font-size:0.8rem;color:rgba(255,255,255,0.5)">Today: <span
+                            style="color:rgba(255,255,255,0.8);font-weight:600" id="today-date"></span></div>
+                    <button id="refresh-btn" class="btn btn-outline btn-sm"
+                        style="border-color:rgba(255,255,255,0.3);color:rgba(255,255,255,0.8)">🔄 Refresh</button>
+                </div>
+            </div>
+
+            <div class="stat-row">
+                <div class="stat-box">
+                    <div class="stat-box-val" style="color:var(--primary-light)" id="st-assigned">—</div>
+                    <div class="stat-box-lbl">Assigned to Me</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-box-val" style="color:var(--warning)" id="st-pending">—</div>
+                    <div class="stat-box-lbl">Pending Action</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-box-val" style="color:var(--success)" id="st-resolved">—</div>
+                    <div class="stat-box-lbl">Resolved by Me</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-box-val" style="color:var(--danger)" id="st-urgent">—</div>
+                    <div class="stat-box-lbl">Urgent / High</div>
+                </div>
+            </div>
+
+            <div class="tab-bar">
+                <button class="tab-btn" id="tab-assigned">📌 Assigned to Me</button>
+                <button class="tab-btn active" id="tab-dept">🏢 My Department</button>
+                <button class="tab-btn" id="tab-all">📋 All Complaints</button>
+            </div>
+
+            <div class="filter-bar flex" style="margin-bottom:16px">
+                <div class="search-wrap" style="flex:2">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="search-input" class="form-input" placeholder="Search by title, number...">
+                </div>
+                <select id="f-status" class="form-select filter-select">
+                    <option value="">All Statuses</option>
+                    <option value="submitted">Submitted</option>
+                    <option value="acknowledged">Acknowledged</option>
+                    <option value="in_progress">In Progress</option>
+                    <option value="resolved">Resolved</option>
+                    <option value="closed">Closed</option>
+                    <option value="rejected">Rejected</option>
+                </select>
+                <select id="f-priority" class="form-select filter-select">
+                    <option value="">All Priorities</option>
+                    <option value="urgent">🔴 Urgent</option>
+                    <option value="high">🟠 High</option>
+                    <option value="medium">🟡 Medium</option>
+                    <option value="low">🟢 Low</option>
+                </select>
+            </div>
+
+            <div id="loading-state" style="text-align:center;padding:40px">
+                <div class="spinner" style="margin:auto 0 12px"></div>
+                <p>Loading complaints...</p>
+            </div>
+            <div id="complaints-grid" class="complaints-grid" style="display:none"></div>
+            <div id="empty-state" class="empty-state hidden">
+                <div class="empty-state-icon">📭</div>
+                <div class="empty-state-title">No complaints found</div>
+                <div class="empty-state-desc">No complaints match your current view or filters.</div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Detail Modal -->
+    <div id="detail-modal" class="modal-overlay hidden">
+        <div class="modal" style="max-width:700px;max-height:90vh;overflow-y:auto">
+            <div class="modal-header"
+                style="position:sticky;top:0;background:var(--surface);z-index:1;padding-bottom:16px;border-bottom:1px solid var(--card-border)">
+                <div>
+                    <h3 id="modal-title">Complaint Details</h3><code id="modal-number"
+                        style="font-size:0.8rem;color:var(--text-muted)"></code>
+                </div>
+                <button id="close-modal-btn" class="btn btn-ghost btn-icon">✕</button>
+            </div>
+            <div class="modal-body">
+                <div id="complaint-info"></div>
+                <div class="divider" style="margin:20px 0"></div>
+                <div>
+                    <h4 style="margin-bottom:14px;display:flex;align-items:center;gap:8px"><span>📝</span> Update Status
+                    </h4>
+                    <input type="hidden" id="modal-complaint-id">
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+                        <div class="form-group">
+                            <label class="form-label">Change Status To</label>
+                            <select id="new-status" class="form-select">
+                                <option value="acknowledged">👁️ Acknowledged</option>
+                                <option value="in_progress">🔧 In Progress</option>
+                                <option value="resolved">✅ Resolved</option>
+                                <option value="closed">🔒 Closed</option>
+                                <option value="rejected">❌ Rejected</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Current Status</label>
+                            <div id="current-status-display"
+                                style="padding:10px;background:var(--surface-2);border-radius:var(--radius);font-size:0.9rem;margin-top:2px">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-bottom:12px">
+                        <label class="form-label">Resolution / Notes</label>
+                        <textarea id="status-notes" class="form-textarea"
+                            placeholder="Describe action taken or add notes..." style="min-height:90px"></textarea>
+                    </div>
+                    <div id="update-error" class="alert alert-error hidden" style="margin-bottom:12px">
+                        <span>❌</span><span id="update-error-msg"></span>
+                    </div>
+                    <button id="update-btn" class="btn btn-primary btn-full">
+                        <span id="update-btn-text">✓ Apply Status Update</span>
+                    </button>
+                </div>
+                <div class="divider" style="margin:20px 0"></div>
+                <div>
+                    <h4 style="margin-bottom:14px">📅 Status Timeline</h4>
+                    <div class="timeline" id="modal-timeline"></div>
+                </div>
+                <div class="divider" style="margin:20px 0"></div>
+                <!-- Delete Section -->
+                <div>
+                    <h4 style="margin-bottom:10px;color:var(--danger)">🗑️ Danger Zone</h4>
+                    <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:12px">Permanently delete this
+                        complaint and all its history. This action cannot be undone.</p>
+                    <button id="delete-btn" class="btn btn-full"
+                        style="background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.4);color:var(--danger);font-weight:700">
+                        🗑️ Delete Complaint
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast-container" class="toast-container"></div>
+    <script src="/static/js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // ── Auth Guard ──
+            if (!Auth.isLoggedIn()) { window.location.href = '/static/login.html'; return; }
+            var user = Auth.getUser();
+            if (!user || user.role === 'citizen') { window.location.href = '/static/citizen/dashboard.html'; return; }
+
+            var allComplaints = [];
+            var currentTab = 'dept'; // Default: show own department complaints
+
+            // ── Init UI ──
+            document.getElementById('profile-avatar').textContent = user.full_name.charAt(0);
+            document.getElementById('nav-avatar').textContent = user.full_name.charAt(0);
+            document.getElementById('nav-user-name').textContent = user.full_name;
+            document.getElementById('nav-user-dept').textContent = user.department || 'Staff';
+            document.getElementById('welcome-name').textContent = 'Welcome, ' + user.full_name.split(' ')[0] + '! 👋';
+            document.getElementById('welcome-email').textContent = user.email;
+            document.getElementById('dept-badge').textContent = '⚙️ ' + (user.department || 'General Staff');
+            document.getElementById('today-date').textContent = new Date().toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' });
+
+            // ── Logout ──
+            function doLogout() { Auth.clear(); window.location.href = '/static/index.html'; }
+            document.getElementById('logout-btn').addEventListener('click', doLogout);
+            document.getElementById('sidebar-logout').addEventListener('click', doLogout);
+            document.getElementById('refresh-btn').addEventListener('click', loadAllData);
+
+            // ── Sidebar tab links ──
+            document.getElementById('link-assigned').addEventListener('click', function (e) { e.preventDefault(); showTab('assigned'); });
+            document.getElementById('link-dept').addEventListener('click', function (e) { e.preventDefault(); showTab('dept'); });
+            document.getElementById('link-all').addEventListener('click', function (e) { e.preventDefault(); showTab('all'); });
+
+            // ── Tab buttons ──
+            document.getElementById('tab-assigned').addEventListener('click', function () { showTab('assigned'); });
+            document.getElementById('tab-dept').addEventListener('click', function () { showTab('dept'); });
+            document.getElementById('tab-all').addEventListener('click', function () { showTab('all'); });
+
+            // ── Filters ──
+            document.getElementById('search-input').addEventListener('input', filterVisible);
+            document.getElementById('f-status').addEventListener('change', filterVisible);
+            document.getElementById('f-priority').addEventListener('change', filterVisible);
+
+            // ── Notifications ──
+            document.getElementById('notif-btn').addEventListener('click', function () {
+                document.getElementById('notif-dropdown').classList.toggle('hidden');
+                loadNotifications();
+            });
+
+            function loadNotifications() {
+                API.getNotifications().then(function (data) {
+                    var badge = document.getElementById('notif-count');
+                    if (data.unread_count > 0) { badge.textContent = data.unread_count; badge.classList.remove('hidden'); }
+                    else badge.classList.add('hidden');
+                    var list = document.getElementById('notif-list');
+                    if (!data.notifications.length) {
+                        list.innerHTML = '<div style="padding:16px;color:var(--text-muted);text-align:center">No notifications</div>';
+                    } else {
+                        list.innerHTML = data.notifications.slice(0, 8).map(function (n) {
+                            return '<div class="notif-item ' + (n.is_read ? '' : 'unread') + '" onclick="API.markNotifRead(' + n.id + '); this.classList.remove(\'unread\')">'
+                                + '<div class="notif-msg">' + n.message + '</div>'
+                                + '<div class="notif-time">' + Utils.timeAgo(n.created_at) + '</div></div>';
+                        }).join('');
+                    }
+                }).catch(function () { });
+            }
+
+            // ── Load All Data ──
+            function loadAllData() {
+                document.getElementById('loading-state').style.display = 'block';
+                document.getElementById('complaints-grid').style.display = 'none';
+                document.getElementById('empty-state').classList.add('hidden');
+
+                API.getComplaints({ limit: 100 }).then(function (data) {
+                    allComplaints = data.complaints;
+                    var userId = user.id;
+                    var assigned = allComplaints.filter(function (c) { return c.assigned_to == userId; });
+                    var pending = assigned.filter(function (c) { return ['submitted', 'acknowledged', 'in_progress'].includes(c.status); });
+                    var resolved = assigned.filter(function (c) { return c.status === 'resolved'; });
+                    var urgent = allComplaints.filter(function (c) { return ['urgent', 'high'].includes(c.priority) && !['resolved', 'closed', 'rejected'].includes(c.status); });
+                    document.getElementById('st-assigned').textContent = assigned.length;
+                    document.getElementById('st-pending').textContent = pending.length;
+                    document.getElementById('st-resolved').textContent = resolved.length;
+                    document.getElementById('st-urgent').textContent = urgent.length;
+                    renderTab();
+                }).catch(function (err) {
+                    document.getElementById('loading-state').innerHTML = '<div class="alert alert-error"><span>❌</span><span>' + err.message + '</span></div>';
+                });
+            }
+
+            function showTab(tab) {
+                currentTab = tab;
+                ['assigned', 'dept', 'all'].forEach(function (t) {
+                    document.getElementById('tab-' + t).classList.toggle('active', t === tab);
+                });
+                renderTab();
+            }
+
+            function getTabComplaints() {
+                if (currentTab === 'assigned') return allComplaints.filter(function (c) { return c.assigned_to == user.id; });
+                if (currentTab === 'dept' && user.department) return allComplaints.filter(function (c) { return c.department === user.department; });
+                return allComplaints;
+            }
+
+            function filterVisible() {
+                var search = document.getElementById('search-input').value.toLowerCase();
+                var status = document.getElementById('f-status').value;
+                var priority = document.getElementById('f-priority').value;
+                var list = getTabComplaints();
+                if (search) list = list.filter(function (c) { return c.title.toLowerCase().includes(search) || c.complaint_number.toLowerCase().includes(search); });
+                if (status) list = list.filter(function (c) { return c.status === status; });
+                if (priority) list = list.filter(function (c) { return c.priority === priority; });
+                renderComplaints(list);
+            }
+
+            function renderTab() { filterVisible(); }
+
+            function renderComplaints(complaints) {
+                var grid = document.getElementById('complaints-grid');
+                var empty = document.getElementById('empty-state');
+                document.getElementById('loading-state').style.display = 'none';
+                if (!complaints.length) {
+                    grid.style.display = 'none'; empty.classList.remove('hidden'); return;
+                }
+                grid.style.display = 'grid'; empty.classList.add('hidden');
+                grid.innerHTML = complaints.map(function (c) {
+                    return '<div class="complaint-card ' + c.priority + '-card" onclick="openDetailCard(' + c.id + ')">'
+                        + '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">'
+                        + '<div><div style="font-size:0.75rem;font-family:monospace;color:var(--primary-light);margin-bottom:4px">' + c.complaint_number + '</div>'
+                        + '<div style="font-weight:700;font-size:0.95rem;line-height:1.3">' + c.title + '</div></div>'
+                        + Utils.statusBadge(c.status) + '</div>'
+                        + '<div style="font-size:0.82rem;color:var(--text-muted);margin-bottom:12px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">' + c.description + '</div>'
+                        + '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px">' + Utils.categoryBadge(c.category) + ' ' + Utils.priorityBadge(c.priority) + '</div>'
+                        + '<div style="display:flex;justify-content:space-between;font-size:0.78rem;color:var(--text-muted)"><span>📍 ' + c.location + '</span><span>🕐 ' + Utils.timeAgo(c.created_at) + '</span></div>'
+                        + '<div style="margin-top:8px;font-size:0.78rem;color:var(--text-muted)">👤 ' + (c.citizen_name || 'Unknown') + ' · 🏢 ' + c.department + '</div>'
+                        + (c.assigned_to == user.id ? '<div style="margin-top:8px;padding:4px 10px;background:rgba(59,130,246,0.1);border-radius:100px;display:inline-flex;align-items:center;gap:4px;font-size:0.75rem;color:var(--primary-light);font-weight:600">📌 Assigned to me</div>' : '')
+                        + '<div class="divider" style="margin:12px 0 8px"></div>'
+                        + '<button class="btn btn-primary btn-sm btn-full" onclick="event.stopPropagation();openDetailCard(' + c.id + ')">Manage →</button>'
+                        + '</div>';
+                }).join('');
+            }
+
+            // Expose for onclick
+            window.openDetailCard = function (id) {
+                document.getElementById('detail-modal').classList.remove('hidden');
+                document.getElementById('complaint-info').innerHTML = '<div style="text-align:center;padding:30px"><div class="spinner" style="margin:auto"></div></div>';
+                document.getElementById('modal-timeline').innerHTML = '';
+                document.getElementById('update-error').classList.add('hidden');
+                API.getComplaint(id).then(function (data) {
+                    var c = data.complaint;
+                    var timeline = data.timeline;
+                    document.getElementById('modal-title').textContent = c.title;
+                    document.getElementById('modal-number').textContent = c.complaint_number;
+                    document.getElementById('modal-complaint-id').value = id;
+                    document.getElementById('new-status').value = c.status;
+                    document.getElementById('status-notes').value = '';
+                    document.getElementById('current-status-display').innerHTML = Utils.statusBadge(c.status);
+                    document.getElementById('complaint-info').innerHTML =
+                        '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">' + Utils.statusBadge(c.status) + ' ' + Utils.categoryBadge(c.category) + ' ' + Utils.priorityBadge(c.priority) + '</div>'
+                        + '<div class="card" style="margin-bottom:0">'
+                        + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:0.855rem;margin-bottom:12px">'
+                        + '<div><span style="color:var(--text-muted)">Citizen: </span><strong>' + (c.citizen_name || 'N/A') + '</strong></div>'
+                        + '<div><span style="color:var(--text-muted)">Phone: </span>' + (c.citizen_phone || 'N/A') + '</div>'
+                        + '<div><span style="color:var(--text-muted)">Department: </span>' + c.department + '</div>'
+                        + '<div><span style="color:var(--text-muted)">Location: </span>' + c.location + '</div>'
+                        + '<div><span style="color:var(--text-muted)">Filed: </span>' + Utils.formatDate(c.created_at) + '</div>'
+                        + (c.resolved_at ? '<div><span style="color:var(--text-muted)">Resolved: </span>' + Utils.formatDate(c.resolved_at) + '</div>' : '')
+                        + (c.assigned_name ? '<div><span style="color:var(--text-muted)">Assigned To: </span><strong>' + c.assigned_name + '</strong></div>' : '<div><span style="color:var(--text-muted)">Assigned: </span><span style="color:var(--warning)">Unassigned</span></div>')
+                        + '</div>'
+                        + '<div style="padding:12px;background:var(--surface-2);border-radius:var(--radius);font-size:0.85rem;color:var(--text-secondary);line-height:1.6">' + c.description + '</div>'
+                        + (c.resolution_notes ? '<div style="margin-top:12px;padding:12px;border-left:4px solid var(--success);background:rgba(16,185,129,0.06);border-radius:0 var(--radius) var(--radius) 0;font-size:0.85rem"><div style="color:var(--success);font-weight:700;margin-bottom:4px">✅ Resolution Notes</div><div style="color:var(--text-secondary)">' + c.resolution_notes + '</div></div>' : '')
+                        + '</div>';
+                    document.getElementById('modal-timeline').innerHTML = timeline.length
+                        ? timeline.map(function (t) {
+                            return '<div class="timeline-item"><div class="timeline-dot ' + Utils.timelineColor(t.new_status) + '"></div>'
+                                + '<div style="display:flex;justify-content:space-between;margin-bottom:4px"><div class="timeline-action" style="font-weight:700">' + t.action + '</div><div class="timeline-time">' + Utils.formatDate(t.created_at) + '</div></div>'
+                                + (t.notes ? '<div class="timeline-notes">"' + t.notes + '"</div>' : '')
+                                + '<div class="timeline-actor">— ' + (t.updated_by_name || 'System') + '</div></div>';
+                        }).join('')
+                        : '<div style="color:var(--text-muted);font-size:0.875rem;padding:12px 0">No timeline updates yet.</div>';
+                }).catch(function (err) {
+                    document.getElementById('complaint-info').innerHTML = '<div class="alert alert-error"><span>❌</span><span>' + err.message + '</span></div>';
+                });
+            };
+
+            // ── Update Status ──
+            document.getElementById('update-btn').addEventListener('click', function () {
+                var id = document.getElementById('modal-complaint-id').value;
+                var status = document.getElementById('new-status').value;
+                var notes = document.getElementById('status-notes').value;
+                var btn = document.getElementById('update-btn');
+                var btnText = document.getElementById('update-btn-text');
+                var errBox = document.getElementById('update-error');
+                errBox.classList.add('hidden');
+                btn.disabled = true;
+                btnText.innerHTML = '<span class="spinner" style="width:16px;height:16px;border-width:2px"></span> Updating...';
+                API.updateStatus(id, { status: status, notes: notes || null, assigned_to: null }).then(function () {
+                    Toast.success('Status updated to "' + status + '" ✅');
+                    document.getElementById('detail-modal').classList.add('hidden');
+                    loadAllData();
+                }).catch(function (err) {
+                    document.getElementById('update-error-msg').textContent = err.message;
+                    errBox.classList.remove('hidden');
+                }).finally(function () {
+                    btn.disabled = false;
+                    btnText.textContent = '✓ Apply Status Update';
+                });
+            });
+
+            // ── Close Modal ──
+            document.getElementById('close-modal-btn').addEventListener('click', function () {
+                document.getElementById('detail-modal').classList.add('hidden');
+            });
+            document.getElementById('detail-modal').addEventListener('click', function (e) {
+                if (e.target === this) document.getElementById('detail-modal').classList.add('hidden');
+            });
+
+            // ── Delete Complaint ──
+            document.getElementById('delete-btn').addEventListener('click', function () {
+                var id = document.getElementById('modal-complaint-id').value;
+                var title = document.getElementById('modal-title').textContent;
+                if (!confirm('⚠️ Delete "' + title + '"?\n\nThis will permanently remove the complaint and all its history. This cannot be undone.')) return;
+                var btn = document.getElementById('delete-btn');
+                btn.disabled = true;
+                btn.textContent = '⏳ Deleting...';
+                API.deleteComplaint(id).then(function () {
+                    Toast.success('Complaint deleted successfully 🗑️');
+                    document.getElementById('detail-modal').classList.add('hidden');
+                    loadAllData();
+                }).catch(function (err) {
+                    Toast.error('Delete failed: ' + err.message);
+                    btn.disabled = false;
+                    btn.textContent = '🗑️ Delete Complaint';
+                });
+            });
+
+            // ── Initial Load ──
+            loadAllData();
+            loadNotifications();
+            setInterval(loadAllData, 60000);
+            setInterval(loadNotifications, 30000);
+        });
+    </script>
+</body>
+
+</html>

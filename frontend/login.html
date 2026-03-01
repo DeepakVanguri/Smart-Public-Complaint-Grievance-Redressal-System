@@ -5,16 +5,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign In | SmartGov</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="/static/css/styles.css">
     <style>
         body {
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start;
             min-height: 100vh;
             background: var(--bg);
             position: relative;
-            overflow: hidden;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 40px 16px;
         }
 
         .auth-bg-glow {
@@ -208,25 +210,96 @@
 
             <div class="divider-or">or</div>
 
-            <a href="register.html" class="btn btn-outline btn-full">Create New Account →</a>
+            <a href="/static/register.html" class="btn btn-outline btn-full">Create New Account →</a>
 
-            <!-- Demo Credentials -->
-            <div class="demo-creds mt-4">
-                <p>🧪 <strong>Demo Credentials</strong> — click to fill:</p>
-                <div class="demo-creds-item">
-                    <span style="color:var(--text-secondary)">👤 Citizen</span>
-                    <code onclick="fillCreds('citizen@demo.in','Citizen@123')">citizen@demo.in / Citizen@123</code>
+            <!-- ── Demo Credentials (Redesigned) ── -->
+            <div
+                style="margin-top:20px; background:var(--surface-2); border:1px solid var(--card-border); border-radius:var(--radius-lg); padding:16px;">
+
+                <div style="display:flex; align-items:center; gap:8px; margin-bottom:14px">
+                    <span>🧪</span>
+                    <strong style="font-size:0.875rem; color:var(--text-primary)">Demo Credentials</strong>
+                    <span style="margin-left:auto; font-size:0.72rem; color:var(--text-muted)">Click to fill
+                        fields</span>
                 </div>
-                <div class="demo-creds-item">
-                    <span style="color:var(--text-secondary)">🛡️ Admin</span>
-                    <code onclick="fillCreds('admin@smartgov.in','Admin@123')">admin@smartgov.in / Admin@123</code>
+
+                <!-- Citizen -->
+                <div class="dc-card" style="border-color:#3b82f6; background:rgba(59,130,246,0.06)">
+                    <div class="dc-label">👤 Citizen</div>
+                    <div class="dc-row">
+                        <span class="dc-pill dc-email"
+                            onclick="fillField('email','citizen@demo.in')">citizen@demo.in</span>
+                        <span class="dc-pill dc-pass" onclick="fillField('password','Citizen@123')">Citizen@123</span>
+                        <span class="dc-all" onclick="fillCreds('citizen@demo.in','Citizen@123')">Fill All ↗</span>
+                    </div>
                 </div>
-                <div class="demo-creds-item">
-                    <span style="color:var(--text-secondary)">⚙️ Staff</span>
-                    <code onclick="fillCreds('water@smartgov.in','Staff@123')">water@smartgov.in / Staff@123</code>
+
+                <!-- Admin -->
+                <div class="dc-card" style="border-color:#f59e0b; background:rgba(245,158,11,0.06)">
+                    <div class="dc-label">🛡️ Admin</div>
+                    <div class="dc-row">
+                        <span class="dc-pill dc-email"
+                            onclick="fillField('email','admin@smartgov.in')">admin@smartgov.in</span>
+                        <span class="dc-pill dc-pass" onclick="fillField('password','Admin@123')">Admin@123</span>
+                        <span class="dc-all" onclick="fillCreds('admin@smartgov.in','Admin@123')">Fill All ↗</span>
+                    </div>
                 </div>
-            </div>
-        </div>
+
+                <!-- Staff divider -->
+                <div style="margin:12px 0 8px; padding-top:10px; border-top:1px solid var(--card-border)">
+                    <span
+                        style="font-size:0.72rem; color:var(--text-muted); font-weight:700; text-transform:uppercase; letter-spacing:0.06em">⚙️
+                        Staff Accounts</span>
+                    <span style="float:right; font-size:0.72rem; color:var(--text-muted)">Password: <code
+                            style="color:#6ee7b7; background:rgba(16,185,129,0.12); padding:1px 6px; border-radius:4px">Staff@123</code></span>
+                </div>
+
+                <!-- Water Staff -->
+                <div class="dc-card" style="border-color:#06b6d4; background:rgba(6,182,212,0.05)">
+                    <div class="dc-label">💧 Water Supply</div>
+                    <div class="dc-row">
+                        <span class="dc-pill dc-email"
+                            onclick="fillField('email','water@smartgov.in')">water@smartgov.in</span>
+                        <span class="dc-pill dc-pass" onclick="fillField('password','Staff@123')">Staff@123</span>
+                        <span class="dc-all" onclick="fillCreds('water@smartgov.in','Staff@123')">Fill All ↗</span>
+                    </div>
+                </div>
+
+                <!-- Electricity -->
+                <div class="dc-card" style="border-color:#f59e0b; background:rgba(245,158,11,0.05)">
+                    <div class="dc-label">⚡ Electricity</div>
+                    <div class="dc-row">
+                        <span class="dc-pill dc-email"
+                            onclick="fillField('email','electric@smartgov.in')">electric@smartgov.in</span>
+                        <span class="dc-pill dc-pass" onclick="fillField('password','Staff@123')">Staff@123</span>
+                        <span class="dc-all" onclick="fillCreds('electric@smartgov.in','Staff@123')">Fill All ↗</span>
+                    </div>
+                </div>
+
+                <!-- Sanitation -->
+                <div class="dc-card" style="border-color:#10b981; background:rgba(16,185,129,0.05)">
+                    <div class="dc-label">🗑️ Sanitation</div>
+                    <div class="dc-row">
+                        <span class="dc-pill dc-email"
+                            onclick="fillField('email','sanitation@smartgov.in')">sanitation@smartgov.in</span>
+                        <span class="dc-pill dc-pass" onclick="fillField('password','Staff@123')">Staff@123</span>
+                        <span class="dc-all" onclick="fillCreds('sanitation@smartgov.in','Staff@123')">Fill All ↗</span>
+                    </div>
+                </div>
+
+                <!-- Infrastructure -->
+                <div class="dc-card" style="border-color:#8b5cf6; background:rgba(139,92,246,0.05)">
+                    <div class="dc-label">🏗️ Infrastructure</div>
+                    <div class="dc-row">
+                        <span class="dc-pill dc-email"
+                            onclick="fillField('email','infra@smartgov.in')">infra@smartgov.in</span>
+                        <span class="dc-pill dc-pass" onclick="fillField('password','Staff@123')">Staff@123</span>
+                        <span class="dc-all" onclick="fillCreds('infra@smartgov.in','Staff@123')">Fill All ↗</span>
+                    </div>
+                </div>
+
+            </div><!-- end demo creds -->
+        </div><!-- end auth-card -->
 
         <p style="text-align:center; margin-top:16px; font-size:0.85rem; color:var(--text-muted)">
             <a href="index.html">← Back to Home</a>
@@ -234,23 +307,33 @@
     </div>
 
     <div id="toast-container" class="toast-container"></div>
-    <script src="js/app.js"></script>
+    <script src="/static/js/app.js"></script>
     <script>
-        // Redirect if already logged in
-        if (Auth.isLoggedIn()) Utils.redirectDashboard();
+        // Redirect if already logged in (run after DOM ready so app.js is loaded)
+        document.addEventListener('DOMContentLoaded', () => {
+            if (Auth.isLoggedIn()) Utils.redirectDashboard();
+        });
 
         // Pre-fill role from URL params
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('role') === 'admin') switchRole('admin');
+        if (urlParams.get('role') === 'staff') switchRole('staff');
 
         function switchRole(role) {
             document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
             document.querySelector(`[data-role="${role}"]`).classList.add('active');
         }
 
+        function fillField(fieldId, value) {
+            document.getElementById(fieldId).value = value;
+            document.getElementById(fieldId).focus();
+            Toast.success(fieldId === 'email' ? '📧 Email filled!' : '🔑 Password filled!');
+        }
+
         function fillCreds(email, password) {
             document.getElementById('email').value = email;
             document.getElementById('password').value = password;
+            Toast.success('✅ Credentials filled — ready to Sign In!');
         }
 
         document.getElementById('login-form').addEventListener('submit', async (e) => {
@@ -271,7 +354,14 @@
                 });
                 Auth.save(data.token, data.user);
                 Toast.success(`Welcome back, ${data.user.full_name.split(' ')[0]}! 🎉`);
-                setTimeout(() => Utils.redirectDashboard(), 800);
+                // Small delay so toast shows, then redirect based on actual role
+                setTimeout(() => {
+                    const savedUser = Auth.getUser();
+                    if (!savedUser) return;
+                    if (savedUser.role === 'citizen') window.location.href = '/static/citizen/dashboard.html';
+                    else if (savedUser.role === 'staff') window.location.href = '/static/staff/dashboard.html';
+                    else window.location.href = '/static/admin/dashboard.html';
+                }, 800);
             } catch (err) {
                 errorMsg.textContent = err.message;
                 errorAlert.classList.remove('hidden');
@@ -280,6 +370,83 @@
             }
         });
     </script>
+
+    <!-- Demo Card Styles -->
+    <style>
+        .dc-card {
+            border-left: 3px solid;
+            border-radius: var(--radius);
+            padding: 8px 10px;
+            margin-bottom: 7px;
+        }
+
+        .dc-label {
+            font-size: 0.76rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+        }
+
+        .dc-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            align-items: center;
+        }
+
+        .dc-pill {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 100px;
+            font-size: 0.71rem;
+            font-family: monospace;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.15s;
+            user-select: none;
+            white-space: nowrap;
+        }
+
+        .dc-email {
+            background: rgba(59, 130, 246, 0.13);
+            color: #93c5fd;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .dc-email:hover {
+            background: rgba(59, 130, 246, 0.25);
+            transform: scale(1.04);
+        }
+
+        .dc-pass {
+            background: rgba(16, 185, 129, 0.13);
+            color: #6ee7b7;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .dc-pass:hover {
+            background: rgba(16, 185, 129, 0.25);
+            transform: scale(1.04);
+        }
+
+        .dc-all {
+            margin-left: auto;
+            font-size: 0.69rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 3px 9px;
+            border-radius: 100px;
+            border: 1px solid var(--card-border);
+            transition: all 0.15s;
+            white-space: nowrap;
+        }
+
+        .dc-all:hover {
+            color: var(--primary-light);
+            border-color: rgba(59, 130, 246, 0.5);
+            background: rgba(59, 130, 246, 0.08);
+        }
+    </style>
 </body>
 
 </html>

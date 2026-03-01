@@ -5,17 +5,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register | SmartGov</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="/static/css/styles.css">
     <style>
         body {
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start;
             min-height: 100vh;
             background: var(--bg);
             position: relative;
-            overflow: hidden;
-            padding: 80px 20px 40px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 40px 20px 60px;
         }
 
         .auth-bg-glow {
@@ -245,17 +246,21 @@
 
             <div style="text-align:center; margin-top:20px">
                 <span style="font-size:0.875rem; color:var(--text-muted)">Already have an account? </span>
-                <a href="login.html" style="font-weight:600">Sign In →</a>
+                <a href="/static/login.html" style="font-weight:600">Sign In →</a>
             </div>
         </div>
-        <p style="text-align:center; margin-top:16px; font-size:0.85rem; color:var(--text-muted)"><a href="index.html">←
-                Back to Home</a></p>
+        <p style="text-align:center; margin-top:16px; font-size:0.85rem; color:var(--text-muted)">
+            <a href="/static/index.html">← Back to Home</a>
+        </p>
     </div>
 
     <div id="toast-container" class="toast-container"></div>
-    <script src="js/app.js"></script>
+    <script src="/static/js/app.js"></script>
     <script>
-        if (Auth.isLoggedIn()) Utils.redirectDashboard();
+        // Redirect if already logged in — run after DOM ready so app.js is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            if (Auth.isLoggedIn()) Utils.redirectDashboard();
+        });
 
         // Role selection UX
         document.querySelectorAll('input[name="role"]').forEach(radio => {

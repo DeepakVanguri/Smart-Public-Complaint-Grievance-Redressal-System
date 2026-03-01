@@ -726,6 +726,66 @@ async def upload_attachment(
     return {"success": True, "filename": filename, "message": "File uploaded successfully"}
 
 
+
+# ─── DELETE Complaint ─────────────────────────────────────────────────────────
+@app.delete("/api/complaints/{complaint_id}", tags=["Complaints"])
+def delete_complaint(complaint_id: int, authorization: str = Header(...)):
+    """Delete a complaint. Rules:
+    - Citizens: can delete own complaints if status is 'submitted'.
+    - Staff: can delete complaints in their department.
+    - Admin: can delete any complaint.
+    """
+    current_user = get_current_user(authorization)
+    conn = get_db()
+    try:
+        cursor = conn.cursor()
+        # Fetch the complaint
+        cursor.execute("""
+            SELECT id, citizen_id, department, status FROM complaints WHERE id = ?
+        """, (complaint_id,))
+        complaint = cursor.fetchone()
+        if not complaint:
+            raise HTTPException(status_code=404, detail="Complaint not found")
+
+        role = current_user["role"]
+        user_id = current_user["user_id"]
+
+        if role == "citizen":
+            if complaint["citizen_id"] != user_id:
+                raise HTTPException(status_code=403, detail="You can only delete your own complaints")
+            if complaint["status"] not in ("submitted", "acknowledged"):
+                raise HTTPException(
+                    status_code=403,
+                    detail="You can only delete complaints that are still Submitted or Acknowledged"
+                )
+        elif role == "staff":
+            dept = current_user.get("department")
+            if dept and complaint["department"] != dept:
+                raise HTTPException(status_code=403, detail="You can only delete complaints from your department")
+        # admin: no restrictions
+
+        # Cascade delete: timeline, notifications, then complaint
+        cursor.execute("DELETE FROM complaint_timeline WHERE complaint_id = ?", (complaint_id,))
+        cursor.execute("DELETE FROM notifications WHERE complaint_id = ?", (complaint_id,))
+        cursor.execute("DELETE FROM complaints WHERE id = ?", (complaint_id,))
+        conn.commit()
+        return {"success": True, "message": "Complaint deleted successfully"}
+    finally:
+        conn.close()
+
+
+# ─── Catch-all: Serve frontend files at root level ────────────────────────────
+# This allows relative links in index.html (e.g. href="login.html") to work
+# when index.html is served at "/" instead of "/static/index.html"
+@app.get("/{filepath:path}", include_in_schema=False)
+def serve_frontend(filepath: str):
+    """Serve frontend files from root path (catch-all)"""
+    file_path = os.path.join(FRONTEND_DIR, filepath)
+    if os.path.isfile(file_path):
+        return FileResponse(file_path)
+    raise HTTPException(status_code=404, detail="Not found")
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

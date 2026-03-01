@@ -435,7 +435,7 @@
           <td>${Utils.priorityBadge(c.priority)}</td>
           <td>${Utils.statusBadge(c.status)}</td>
           <td style="white-space:nowrap; font-size:0.8rem">${Utils.timeAgo(c.created_at)}</td>
-          <td><button class="btn btn-sm btn-outline" onclick="openStatusModal(${c.id}, '${c.status}')">Update</button></td>
+          <td><button class="btn btn-sm btn-outline" onclick="openStatusModal(${c.id}, '${c.status}')" style="margin-right:6px">Update</button><button class="btn btn-sm" style="background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.35);color:var(--danger)" onclick="adminDeleteComplaint(${c.id}, '${c.title}')">🗑️</button></td>
         </tr>
       `).join('');
         }
@@ -480,6 +480,17 @@
                 loadDashboard(); // Refresh
             } catch (err) {
                 Toast.error(err.message);
+            }
+        }
+
+        async function adminDeleteComplaint(id, title) {
+            if (!confirm('🗑️ Delete complaint:\n"' + title + '"\n\nThis permanently removes it and all timeline/notification history. Cannot be undone.')) return;
+            try {
+                await API.deleteComplaint(id);
+                Toast.success('Complaint deleted 🗑️');
+                loadDashboard();
+            } catch (err) {
+                Toast.error('Delete failed: ' + err.message);
             }
         }
 

@@ -71,6 +71,7 @@ const API = {
   getComplaint: (id) => API.get(`/complaints/${id}`),
   submitComplaint: (data) => API.post('/complaints', data),
   updateStatus: (id, data) => API.put(`/complaints/${id}/status`, data),
+  deleteComplaint: (id) => API.delete(`/complaints/${id}`),
   submitFeedback: (complaintId, data) => API.post(`/complaints/${complaintId}/feedback`, data),
 
   // Analytics
@@ -118,20 +119,30 @@ const Toast = {
 
 // ─── Utility Functions ────────────────────────────────────
 const Utils = {
+  // SQLite stores datetime('now') as UTC strings without 'Z'
+  // e.g. "2026-02-28 05:51:00" — we must append 'Z' so JS parses as UTC,
+  // then toLocaleDateString converts to the user's local timezone (IST etc.)
+  _toUTC: (dateStr) => {
+    if (!dateStr) return null;
+    // Already has timezone info (Z or +offset)? Use as-is
+    if (dateStr.includes('Z') || dateStr.includes('+')) return new Date(dateStr);
+    // Replace space separator with 'T' and add 'Z' to mark as UTC
+    return new Date(dateStr.replace(' ', 'T') + 'Z');
+  },
   formatDate: (dateStr) => {
     if (!dateStr) return 'N/A';
-    return new Date(dateStr).toLocaleDateString('en-IN', {
+    return Utils._toUTC(dateStr).toLocaleDateString('en-IN', {
       day: '2-digit', month: 'short', year: 'numeric',
       hour: '2-digit', minute: '2-digit'
     });
   },
   formatDateShort: (dateStr) => {
     if (!dateStr) return 'N/A';
-    return new Date(dateStr).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+    return Utils._toUTC(dateStr).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
   },
   timeAgo: (dateStr) => {
     if (!dateStr) return '';
-    const seconds = Math.floor((new Date() - new Date(dateStr)) / 1000);
+    const seconds = Math.floor((new Date() - Utils._toUTC(dateStr)) / 1000);
     if (seconds < 60) return 'just now';
     const minutes = Math.floor(seconds / 60);
     if (minutes < 60) return `${minutes}m ago`;
@@ -181,7 +192,15 @@ const Utils = {
       window.location.href = '/static/login.html';
       return false;
     }
-    if (requiredRole === 'admin' && !Auth.isAdmin()) {
+    if (requiredRole === 'admin' && !Auth.hasRole('admin')) {
+      // Admins only
+      const user = Auth.getUser();
+      if (user && user.role === 'staff') window.location.href = '/static/staff/dashboard.html';
+      else window.location.href = '/static/citizen/dashboard.html';
+      return false;
+    }
+    if (requiredRole === 'staff' && !Auth.hasRole('staff') && !Auth.hasRole('admin')) {
+      // Staff or admin only
       window.location.href = '/static/citizen/dashboard.html';
       return false;
     }
@@ -191,6 +210,7 @@ const Utils = {
     const user = Auth.getUser();
     if (!user) { window.location.href = '/static/login.html'; return; }
     if (user.role === 'citizen') window.location.href = '/static/citizen/dashboard.html';
+    else if (user.role === 'staff') window.location.href = '/static/staff/dashboard.html';
     else window.location.href = '/static/admin/dashboard.html';
   },
   renderStars: (rating) => {
